@@ -6,8 +6,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configure the API key using the environment variable
-api_key = os.environ.get("GEMINI_API_KEY")
-if api_key:
+raw_key = os.environ.get("GEMINI_API_KEY")
+
+# Check if the key is missing or still the placeholder string
+if not raw_key or "your_gemini" in raw_key:
+    api_key = None
+else:
+    api_key = raw_key
     genai.configure(api_key=api_key)
 
 # We use gemini-1.5-flash as it is fast and versatile. If you want, you can use gemini-1.5-pro for higher reasoning.
