@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="setup-container glass-panel">
+    <h1>What do you want to learn?</h1>
+    <p class="subtitle">Tell us your goals, and we'll dynamically build your visual curriculum.</p>
+    
+    <form id="setupForm" class="setup-form">
+        <div class="form-group">
+            <label>Subject Topic:</label>
+            <input type="text" id="subject" placeholder="e.g. React.js, Macroeconomics, Quantum Physics" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Your Current Level:</label>
+            <select id="level">
+                <option value="Complete Beginner">Complete Beginner</option>
+                <option value="Know a little">Know a little</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced (just filling gaps)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Your Goal:</label>
+            <textarea id="goal" rows="2" placeholder="e.g. I want to build a web app, I have an exam next week..."></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label>Your Background (Optional but helps personalize):</label>
+            <textarea id="background" rows="2" placeholder="e.g. I know Python but not JS, I have an ADHD learning style..."></textarea>
+        </div>
+        
+        <button type="submit" class="cta-button" id="buildBtn">Build My Curriculum</button>
+    </form>
+    
+    <div id="loader" class="loader-hidden">
+        <div class="spinner"></div>
+        <p>Researching topic and designing your learning path...</p>
+    </div>
+</div>
+{% endblock %}

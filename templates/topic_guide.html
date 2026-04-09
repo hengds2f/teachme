@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="topic-header-bar">
+    <a href="/" class="back-link">← Back to Dashboard</a>
+    <h2>{{ topic.id }}: {{ topic.title }}</h2>
+    <div class="topic-actions">
+        <!-- Print button -->
+        <button onclick="window.print()" class="btn-secondary">🖨️ Save as PDF / Print</button>
+    </div>
+</div>
+
+<div class="learning-container" id="learning-container" data-topic-id="{{ topic.id }}">
+    
+    <div id="chunks-area">
+        {% for chunk in chunks %}
+            <div class="chunk-box chunk-{{ chunk.type }}">
+                <div class="chunk-label">{{ chunk.type | capitalize }}</div>
+                <div class="chunk-content">
+                    {{ chunk.content_html | safe }}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Interactive Next Actions -->
+    <div class="chunk-controls" id="chunk-controls">
+        {% if progress.status != "Completed" %}
+            <p>What would you like to explore next?</p>
+            <div class="button-group">
+                <button class="dynamic-btn" data-type="concept">Learn Concept</button>
+                <button class="dynamic-btn" data-type="example">See Example</button>
+                <button class="dynamic-btn" data-type="exercise">Try Exercise</button>
+                <button class="dynamic-btn" data-type="check">Knowledge Check</button>
+            </div>
+            <div class="complete-group">
+                <button class="complete-btn" id="markCompleteBtn">I've mastered this topic</button>
+            </div>
+        {% else %}
+            <div class="completion-banner">
+                <h3>🎉 You've completed this topic!</h3>
+                <a href="/" class="cta-button">Return to Dashboard</a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div id="chunk-loader" class="loader-hidden">
+        <div class="spinner"></div>
+        <p>Generating personalized content...</p>
+    </div>
+    
+    <!-- Re-explain Modal -->
+    <div id="reexplainModal" class="modal-hidden">
+        <div class="modal-content glass-panel">
+            <h3>Need a different explanation?</h3>
+            <p>Tell the AI what you didn't understand, and it will re-explain it using a different framing or analogy.</p>
+            <textarea id="feedbackText" rows="3" placeholder="e.g. The part about React Hooks confused me..."></textarea>
+            <div class="modal-actions">
+                <button id="cancelReexplain" class="btn-secondary">Cancel</button>
+                <button id="submitReexplain" class="cta-button">Re-Explain</button>
+            </div>
+            <div id="modal-spinner" class="loader-hidden"><div class="spinner"></div></div>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Action Button for Re-explain if stuck -->
+<button id="fab-stuck" class="fab" title="I'm Stuck!">🤔 Stuck?</button>
+{% endblock %}

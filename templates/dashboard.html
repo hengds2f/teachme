@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard-header">
+    <div class="user-info">
+        <h1>Curriculum: {{ subject }}</h1>
+        <p class="badge level-badge">Level: {{ level }}</p>
+    </div>
+</div>
+
+<div class="curriculum-grid-container">
+    {% set tiers = ['Foundations', 'Intermediate', 'Advanced', 'Use Case Guides'] %}
+    
+    {% for tier in tiers %}
+    <div class="tier-section">
+        <h2 class="tier-title">{{ tier }}</h2>
+        <div class="topics-grid">
+            {% for topic in topics %}
+                {% if topic.tier == tier %}
+                    {% set prog = progress_map[topic.id] %}
+                    <a href="/topic/{{ topic.id }}" class="topic-card {% if prog.status == 'Completed' %}completed{% elif prog.status == 'In Progress' %}in-progress{% endif %}">
+                        <div class="topic-header">
+                            <span class="topic-id">{{ topic.id }}</span>
+                            <span class="topic-status">
+                                {% if prog.status == 'Completed' %}✅{% elif prog.status == 'In Progress' %}⏳{% endif %}
+                            </span>
+                        </div>
+                        <h3>{{ topic.title }}</h3>
+                        <p>{{ topic.description }}</p>
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
