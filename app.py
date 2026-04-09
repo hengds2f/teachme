@@ -282,6 +282,7 @@ def reset_view():
 
 @app.route('/api/debug/env')
 def debug_env():
+    import google.generativeai as genai_lib
     # Only show keys that start with GEMINI for safety
     gemini_keys = [k for k in os.environ.keys() if 'GEMINI' in k.upper()]
     debug_info = {}
@@ -292,10 +293,31 @@ def debug_env():
             "prefix": val[:3] if val and len(val) >= 3 else "***"
         }
     return jsonify({
+        "lib_version": genai_lib.__version__,
         "present_keys": gemini_keys,
         "debug_info": debug_info,
-        "env_check_log": "Checking environment variables for GEMINI configuration"
+        "env_check_log": "Checking environment variables and library version"
     })
+
+@app.route('/api/debug/models')
+def debug_models():
+    import google.generativeai as genai_lib
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        return jsonify({"error": "No API key found in os.environ"}), 404
+    
+    try:
+        genai_lib.configure(api_key=api_key)
+        models = []
+        for m in genai_lib.list_models():
+            models.append({
+                "name": m.name,
+                "supported_methods": m.supported_generation_methods,
+                "description": m.description
+            })
+        return jsonify({"available_models": models})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/topic/complete', methods=['POST'])
 def complete_topic():
