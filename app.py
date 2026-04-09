@@ -33,6 +33,10 @@ def index():
         return render_template('setup.html')
         
     user = User.query.get(session['user_id'])
+    if not user:
+        session.pop('user_id', None)
+        return render_template('setup.html')
+        
     curriculum = Curriculum.query.filter_by(user_id=user.id).order_by(Curriculum.id.desc()).first()
     
     if not curriculum:
@@ -107,6 +111,10 @@ def topic_view(topic_id_str):
         return redirect(url_for('index'))
         
     user = User.query.get(session['user_id'])
+    if not user:
+        session.pop('user_id', None)
+        return redirect(url_for('index'))
+        
     curriculum = Curriculum.query.filter_by(user_id=user.id).order_by(Curriculum.id.desc()).first()
     
     if not curriculum:
