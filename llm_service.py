@@ -54,13 +54,11 @@ def generate_curriculum(subject, level, goal, user_context=""):
         response = model.generate_content(prompt)
         text_output = response.text.replace("```json", "").replace("```", "").strip()
         data = json.loads(text_output)
-        if len(data) != 17:
-            # Re-pad or fix if not exactly 17, but usually LLM follows instructions.
-            pass
         return data
     except Exception as e:
-        print(f"Error generating curriculum: {e}")
-        return generate_mock_curriculum(subject)
+        logger.error(f"Error generating curriculum: {str(e)}")
+        # Provide real error back to UI for diagnostic clarity
+        return generate_mock_curriculum(subject, str(e))
 
 
 def generate_topic_chunk(subject, topic_title, chunk_type, current_context=""):
@@ -151,14 +149,14 @@ def generate_session_summary(topics_covered_info):
     except Exception as e:
         return "You made great progress today. Keep it up!"
 
-def generate_mock_curriculum(subject):
+def generate_mock_curriculum(subject, error_msg="No API key provided."):
     data = []
     tiers = ["Foundations"]*5 + ["Intermediate"]*4 + ["Advanced"]*2 + ["Use Case Guides"]*6
     for i, tier in enumerate(tiers):
         data.append({
             "id": f"{i+1:02d}",
-            "title": f"Mock Topic {i+1} for {subject}",
+            "title": f"Wait! (Error encountered)",
             "tier": tier,
-            "description": "This is a placeholder description since no API key was provided."
+            "description": f"The AI encountered an issue: {error_msg}. Please check logs or try again."
         })
     return data
