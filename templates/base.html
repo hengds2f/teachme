@@ -11,7 +11,7 @@
     <nav class="navbar">
         <div class="logo">TeachMe.ai</div>
         <div class="nav-links">
-            <a href="/">Dashboard</a>
+            <a href="/?user_id={{ session.get('user_id') }}">Dashboard</a>
             <a href="/reset">New Subject</a>
         </div>
     </nav>

@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="topic-header-bar">
-    <a href="/" class="back-link">← Back to Dashboard</a>
+    <a href="/?user_id={{ session.get('user_id') }}" class="back-link">← Back to Dashboard</a>
     <h2>{{ topic.id }}: {{ topic.title }}</h2>
     <div class="topic-actions">
         <!-- Print button -->

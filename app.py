@@ -29,6 +29,11 @@ def make_session_permanent():
 
 @app.route('/')
 def index():
+    user_id_from_url = request.args.get('user_id')
+    
+    if 'user_id' not in session and user_id_from_url:
+        session['user_id'] = user_id_from_url
+        
     if 'user_id' not in session:
         return render_template('setup.html')
         
@@ -102,11 +107,15 @@ def handle_setup():
     
     db.session.commit()
     
-    return jsonify({"status": "success", "curriculum_id": curriculum.id})
+    return jsonify({"status": "success", "user_id": user.id, "curriculum_id": curriculum.id})
 
 
 @app.route('/topic/<topic_id_str>')
 def topic_view(topic_id_str):
+    user_id_from_url = request.args.get('user_id')
+    if 'user_id' not in session and user_id_from_url:
+        session['user_id'] = user_id_from_url
+
     if 'user_id' not in session:
         return redirect(url_for('index'))
         

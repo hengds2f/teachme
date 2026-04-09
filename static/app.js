@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const data = await response.json();
                 if (data.status === 'success') {
-                    window.location.href = '/';
+                    window.location.href = '/?user_id=' + data.user_id;
                 } else {
                     alert('Error creating curriculum. Please try again.');
                     setupForm.style.display = 'block';
