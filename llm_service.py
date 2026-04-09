@@ -8,12 +8,21 @@ load_dotenv()
 # Configure the API key using the environment variable
 raw_key = os.environ.get("GEMINI_API_KEY")
 
+# DEBUG LOG (Safe): Print presence and length of key
+if raw_key:
+    masked = raw_key[:4] + "..." + raw_key[-4:] if len(raw_key) > 8 else "***"
+    print(f"[DEBUG] GEMINI_API_KEY found. Length: {len(raw_key)}. Masked: {masked}")
+else:
+    print("[DEBUG] GEMINI_API_KEY is MISSING in environment.")
+
 # Check if the key is missing or still the placeholder string
 if not raw_key or "your_gemini" in raw_key:
     api_key = None
+    print("[DEBUG] System using MOCK DATA mode.")
 else:
     api_key = raw_key
     genai.configure(api_key=api_key)
+    print("[DEBUG] System using LIVE AI mode.")
 
 # We use gemini-1.5-flash as it is fast and versatile. If you want, you can use gemini-1.5-pro for higher reasoning.
 MODEL_NAME = "gemini-1.5-flash" 
