@@ -14,6 +14,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
+with app.app_context():
+    db.create_all()
+
 # Helper for parsing markdown
 def render_md(text):
     return markdown.markdown(text, extensions=['fenced_code', 'tables'])
@@ -198,10 +201,5 @@ def complete_topic():
     return jsonify({"status": "success"})
 
 
-def create_db():
-    with app.app_context():
-        db.create_all()
-
 if __name__ == '__main__':
-    create_db()
     app.run(host='0.0.0.0', port=7860, debug=True)
