@@ -56,9 +56,27 @@ def generate_curriculum(subject, level, goal, user_context=""):
         data = json.loads(text_output)
         return data
     except Exception as e:
-        logger.error(f"Error generating curriculum: {str(e)}")
-        # Provide real error back to UI for diagnostic clarity
-        return generate_mock_curriculum(subject, str(e))
+        err_str = str(e)
+        if "429" in err_str and "quota" in err_str.lower():
+            logger.warning("Daily AI Quota reached. Switching to Pro Demo Mode.")
+            return generate_demo_curriculum(subject)
+        
+        logger.error(f"Error generating curriculum: {err_str}")
+        return generate_mock_curriculum(subject, err_str)
+
+def generate_demo_curriculum(subject):
+    """
+    Returns a high-quality, structured curriculum for when the AI is on cooldown.
+    """
+    return [
+        {"id": "01", "title": f"The Core Principles of {subject}", "tier": "Foundations", "description": "A comprehensive deep-dive into the fundamental building blocks and mental models."},
+        {"id": "02", "title": "History and Evolution", "tier": "Foundations", "description": "Understanding how this field evolved and where it is heading next."},
+        {"id": "03", "title": "Tools and Environment", "tier": "Foundations", "description": "Setting up your workspace and mastering the essential tools of the trade."},
+        {"id": "04", "title": "Best Practices & Patterns", "tier": "Intermediate", "description": "Moving from basics to professional-grade standards and efficiency."},
+        {"id": "05", "title": "Real-world Case Studies", "tier": "Intermediate", "description": "Analyzing successful implementations and learning from mistakes."},
+        {"id": "06", "title": "Advanced Performance Optimization", "tier": "Advanced", "description": "Fine-tuning for scale, speed, and long-term sustainability."},
+        {"id": "07", "title": "The Future of the Field", "tier": "Use Case Guides", "description": "Emerging trends and how to stay ahead of the curve."}
+    ]
 
 
 def generate_topic_chunk(subject, topic_title, chunk_type, current_context=""):
