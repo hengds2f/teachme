@@ -216,4 +216,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // Debug Environment Setup
+    const debugEnvBtn = document.getElementById('debugEnvBtn');
+    if (debugEnvBtn) {
+        debugEnvBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                const response = await fetch('/api/debug/env');
+                const data = await response.json();
+                alert('DEBUG INFO:\n' + JSON.stringify(data, null, 2));
+            } catch (err) {
+                alert('Debug fetch failed: ' + err);
+            }
+        });
+    }
 });
