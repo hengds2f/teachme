@@ -120,8 +120,14 @@ def generate_topic_chunk(subject, topic_title, chunk_type, current_context=""):
         response = model.generate_content(prompt)
         return response.text
     except Exception as e:
-        print(f"Error generating chunk: {e}")
-        return f"<p>Error generating {chunk_type} for {topic_title}.</p>"
+        err_str = str(e)
+        logger.error(f"Error generating topic chunk: {err_str}")
+        
+        # Friendly Fallback for Quota or other errors
+        if "429" in err_str:
+            return f"### Demo Content: {topic_title}\n\n*Note: The AI is currently at its daily limit. Enjoy this pre-designed learning material.* \n\n**Overview:** {topic_title} is a critical component of {subject}. In this section, we focus on the fundamental theories and practical implementations that define professional standards in this area."
+        
+        return f"Error: The learning engine hit a hitch ({err_str}). Please try again."
 
 
 def re_explain_concept(concept_text, learner_feedback, user_context=""):
