@@ -1,9 +1,12 @@
 import os
 import json
+import logging
 import google.generativeai as genai
 from dotenv import load_dotenv
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 MODEL_NAME = "gemini-1.5-flash" 
 
@@ -19,9 +22,10 @@ def generate_curriculum(subject, level, goal, user_context=""):
     """
     api_key = get_api_key()
     if not api_key:
-        print("[DEBUG] No valid API key found. Using mock curriculum.")
+        logger.warning(f"No valid Gemini API key found. Using mock data for: {subject}")
         return generate_mock_curriculum(subject)
     
+    logger.info(f"Initiating live AI curriculum generation for: {subject}")
     genai.configure(api_key=api_key)
         
     prompt = f"""

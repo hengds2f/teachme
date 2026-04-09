@@ -11,6 +11,7 @@ COPY . .
 # Set environment variables for Flask
 ENV FLASK_APP=app.py
 ENV FLASK_ENV=production
+ENV PYTHONUNBUFFERED=1
 
 # Hugging face spaces usually map to port 7860
 EXPOSE 7860

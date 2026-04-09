@@ -1,10 +1,20 @@
 import os
+import sys
 import json
+import logging
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from werkzeug.middleware.proxy_fix import ProxyFix
 from database import db, User, Curriculum, TopicProgress, SessionActivity
 from llm_service import generate_curriculum, generate_topic_chunk, re_explain_concept, generate_session_summary
 import markdown
+
+# Configure Logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    stream=sys.stderr
+)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
@@ -67,6 +77,8 @@ def handle_setup():
     goal = data.get('goal', 'General knowledge')
     background = data.get('background', '')
     style = data.get('style', '')
+    
+    logger.info(f"New setup request for subject: {subject}, level: {level}")
 
     if 'user_id' not in session:
         # Create a new user for this session
@@ -124,6 +136,8 @@ def sync_curriculum():
     level = data.get('level')
     goal = data.get('goal', '')
     topics = data.get('topics')
+    
+    logger.info(f"Sync attempt for subject: {subject} with {len(topics) if topics else 0} topics")
     
     # Check if we need to create a user session
     if 'user_id' not in session:
