@@ -204,6 +204,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 submitReexplain.disabled = false;
             }
         });
+    }
+
     // Confirmation for reset
     document.querySelectorAll('a[href^="/reset"]').forEach(link => {
         link.addEventListener('click', (e) => {
