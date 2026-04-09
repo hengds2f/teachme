@@ -164,5 +164,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 submitReexplain.disabled = false;
             }
         });
-    }
+    // Confirmation for reset
+    document.querySelectorAll('a[href="/reset"]').forEach(link => {
+        link.addEventListener('click', (e) => {
+            if (!confirm('This will clear your current curriculum and progress. Are you sure?')) {
+                e.preventDefault();
+            }
+        });
+    });
 });

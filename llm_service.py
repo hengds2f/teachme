@@ -5,35 +5,24 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Configure the API key using the environment variable
-raw_key = os.environ.get("GEMINI_API_KEY")
-
-# DEBUG LOG (Safe): Print presence and length of key
-if raw_key:
-    masked = raw_key[:4] + "..." + raw_key[-4:] if len(raw_key) > 8 else "***"
-    print(f"[DEBUG] GEMINI_API_KEY found. Length: {len(raw_key)}. Masked: {masked}")
-else:
-    print("[DEBUG] GEMINI_API_KEY is MISSING in environment.")
-
-# Check if the key is missing or still the placeholder string
-if not raw_key or "your_gemini" in raw_key:
-    api_key = None
-    print("[DEBUG] System using MOCK DATA mode.")
-else:
-    api_key = raw_key
-    genai.configure(api_key=api_key)
-    print("[DEBUG] System using LIVE AI mode.")
-
-# We use gemini-1.5-flash as it is fast and versatile. If you want, you can use gemini-1.5-pro for higher reasoning.
 MODEL_NAME = "gemini-1.5-flash" 
+
+def get_api_key():
+    raw_key = os.environ.get("GEMINI_API_KEY")
+    if not raw_key or "your_gemini" in raw_key:
+        return None
+    return raw_key
 
 def generate_curriculum(subject, level, goal, user_context=""):
     """
     Generates a 17-topic structured curriculum organized into 4 tiers.
     """
+    api_key = get_api_key()
     if not api_key:
-        # Mock for local dev without key
+        print("[DEBUG] No valid API key found. Using mock curriculum.")
         return generate_mock_curriculum(subject)
+    
+    genai.configure(api_key=api_key)
         
     prompt = f"""
     You are an expert curriculum designer and educator. The learner wants to learn about: "{subject}".
@@ -75,8 +64,11 @@ def generate_topic_chunk(subject, topic_title, chunk_type, current_context=""):
     Generates a specific learning chunk (Concept, Example, Exercise, Check Question).
     Follows Knowles' need-to-know, Bloom's Taxonomy, and retrieval practice.
     """
+    api_key = get_api_key()
     if not api_key:
         return f"<p>Mock content for {topic_title} - {chunk_type}</p>"
+    
+    genai.configure(api_key=api_key)
 
     # Ensure chunk type behavior
     behavior_instructions = ""
@@ -113,8 +105,11 @@ def generate_topic_chunk(subject, topic_title, chunk_type, current_context=""):
 
 
 def re_explain_concept(concept_text, learner_feedback, user_context=""):
+    api_key = get_api_key()
     if not api_key:
         return f"<p>Mock re-explanation for: {concept_text[:50]}...</p>"
+    
+    genai.configure(api_key=api_key)
 
     prompt = f"""
     You are an expert personalized tutor. The learner didn't quite understand the following concept:

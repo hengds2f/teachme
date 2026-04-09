@@ -193,6 +193,11 @@ def api_reexplain():
     
     return jsonify({"content_html": html_content})
 
+@app.route('/reset')
+def reset_view():
+    session.pop('user_id', None)
+    return redirect(url_for('index'))
+
 @app.route('/api/topic/complete', methods=['POST'])
 def complete_topic():
     if 'user_id' not in session:
