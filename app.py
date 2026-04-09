@@ -107,7 +107,66 @@ def handle_setup():
     
     db.session.commit()
     
-    return jsonify({"status": "success", "user_id": user.id, "curriculum_id": curriculum.id})
+    return jsonify({
+        "status": "success", 
+        "user_id": user.id, 
+        "subject": subject,
+        "level": level,
+        "topics": topics,
+        "curriculum_id": curriculum.id
+    })
+
+
+@app.route('/api/sync', methods=['POST'])
+def sync_curriculum():
+    data = request.json
+    subject = data.get('subject')
+    level = data.get('level')
+    goal = data.get('goal', '')
+    topics = data.get('topics')
+    
+    # Check if we need to create a user session
+    if 'user_id' not in session:
+        import random, string
+        username = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
+        user = User(username=username, background="Restored", learning_style="")
+        db.session.add(user)
+        db.session.commit()
+        session['user_id'] = user.id
+    else:
+        user = User.query.get(session['user_id'])
+        if not user:
+            import random, string
+            username = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
+            user = User(username=username, background="Restored", learning_style="")
+            db.session.add(user)
+            db.session.commit()
+            session['user_id'] = user.id
+
+    # Create the curriculum if it doesn't exist for this user session
+    existing = Curriculum.query.filter_by(user_id=user.id, subject=subject).first()
+    if not existing:
+        curriculum = Curriculum(
+            user_id=user.id,
+            subject=subject,
+            level=level,
+            goal=goal,
+            topics_json=json.dumps(topics)
+        )
+        db.session.add(curriculum)
+        db.session.commit()
+        
+        # Initialize topic progress
+        for topic in topics:
+            tp = TopicProgress(
+                user_id=user.id,
+                curriculum_id=curriculum.id,
+                topic_id_str=topic['id']
+            )
+            db.session.add(tp)
+        db.session.commit()
+        
+    return jsonify({"status": "success", "user_id": user.id})
 
 
 @app.route('/topic/<topic_id_str>')

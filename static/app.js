@@ -1,5 +1,39 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+    // 0. Auto-Recovery Logic (Session Restoration)
+    if (document.getElementById('setupForm')) {
+        const savedData = localStorage.getItem('teachme_curriculum');
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            // Hide setup form and show loader
+            document.getElementById('setupForm').style.display = 'none';
+            const loader = document.getElementById('loader');
+            loader.classList.remove('loader-hidden');
+            loader.querySelector('p').innerText = "Restoring your learning path...";
+            
+            fetch('/api/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(syncData => {
+                if (syncData.status === 'success') {
+                    window.location.href = '/?user_id=' + syncData.user_id;
+                }
+            })
+            .catch(err => {
+                console.error("Auto-recovery failed", err);
+                // If restore fails, allow user to try manual setup
+                document.getElementById('setupForm').style.display = 'block';
+                loader.classList.add('loader-hidden');
+            });
+            
+            // Exit early while we recover
+            return;
+        }
+    }
+
     // Setup Form Logic
     const setupForm = document.getElementById('setupForm');
     if (setupForm) {
@@ -23,6 +57,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const data = await response.json();
                 if (data.status === 'success') {
+                    // SAVE TO LOCAL STORAGE FOR OFFLINE-FIRST PERSISTENCE
+                    localStorage.setItem('teachme_curriculum', JSON.stringify({
+                        subject: data.subject,
+                        level: data.level,
+                        topics: data.topics
+                    }));
                     window.location.href = '/?user_id=' + data.user_id;
                 } else {
                     alert('Error creating curriculum. Please try again.');
@@ -165,9 +205,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     // Confirmation for reset
-    document.querySelectorAll('a[href="/reset"]').forEach(link => {
+    document.querySelectorAll('a[href^="/reset"]').forEach(link => {
         link.addEventListener('click', (e) => {
-            if (!confirm('This will clear your current curriculum and progress. Are you sure?')) {
+            if (confirm('This will clear your current curriculum and progress. Are you sure?')) {
+                localStorage.removeItem('teachme_curriculum');
+            } else {
                 e.preventDefault();
             }
         });
