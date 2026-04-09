@@ -280,6 +280,23 @@ def reset_view():
     session.pop('user_id', None)
     return redirect(url_for('index'))
 
+@app.route('/api/debug/env')
+def debug_env():
+    # Only show keys that start with GEMINI for safety
+    gemini_keys = [k for k in os.environ.keys() if 'GEMINI' in k.upper()]
+    debug_info = {}
+    for k in gemini_keys:
+        val = os.environ.get(k)
+        debug_info[k] = {
+            "length": len(val) if val else 0,
+            "prefix": val[:3] if val and len(val) >= 3 else "***"
+        }
+    return jsonify({
+        "present_keys": gemini_keys,
+        "debug_info": debug_info,
+        "env_check_log": "Checking environment variables for GEMINI configuration"
+    })
+
 @app.route('/api/topic/complete', methods=['POST'])
 def complete_topic():
     if 'user_id' not in session:
