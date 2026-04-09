@@ -8,7 +8,7 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-MODEL_NAME = "gemini-1.5-flash" 
+MODEL_NAME = "gemini-1.5-flash-latest" 
 
 def get_api_key():
     raw_key = os.environ.get("GEMINI_API_KEY")
