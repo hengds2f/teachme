@@ -118,8 +118,13 @@ def auth_diag():
 def authorize():
     try:
         token = google.authorize_access_token()
-        resp = google.get('userinfo')
-        user_info = resp.json()
+        # With server_metadata_url and OIDC, userinfo is parsed automatically into the token
+        user_info = token.get('userinfo')
+        
+        if not user_info:
+            # Fallback for some configurations
+            resp = google.get('https://openidconnect.googleapis.com/v1/userinfo')
+            user_info = resp.json()
         
         email = user_info.get('email')
         if not email:
