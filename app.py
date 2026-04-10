@@ -39,6 +39,26 @@ google = oauth.register(
 
 with app.app_context():
     db.create_all()
+    # Migration Check: Add columns if they are missing in an existing DB
+    try:
+        from sqlalchemy import text
+        # Using text() for raw SQL safety in newer SQLAlchemy
+        columns = db.session.execute(text("PRAGMA table_info(user)")).fetchall()
+        column_names = [c[1] for c in columns]
+        
+        if 'email' not in column_names:
+            logger.info("Migrating: Adding 'email' column to User table")
+            db.session.execute(text("ALTER TABLE user ADD COLUMN email VARCHAR(100)"))
+        if 'google_id' not in column_names:
+            logger.info("Migrating: Adding 'google_id' column to User table")
+            db.session.execute(text("ALTER TABLE user ADD COLUMN google_id VARCHAR(100)"))
+        if 'profile_pic' not in column_names:
+            logger.info("Migrating: Adding 'profile_pic' column to User table")
+            db.session.execute(text("ALTER TABLE user ADD COLUMN profile_pic VARCHAR(255)"))
+        
+        db.session.commit()
+    except Exception as e:
+        logger.warning(f"Self-healing migration skipped or failed: {e}")
 
 # Helper for parsing markdown
 def render_md(text):
