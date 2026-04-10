@@ -299,6 +299,29 @@ def debug_env():
         "env_check_log": "Checking environment variables and library version"
     })
 
+@app.route('/api/session/summary')
+def session_summary():
+    if 'user_id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    user = User.query.get(session['user_id'])
+    curriculum = Curriculum.query.filter_by(user_id=user.id).order_by(Curriculum.id.desc()).first()
+    
+    # Get all completed topics
+    topics = json.loads(curriculum.topics_json)
+    progress_records = TopicProgress.query.filter_by(curriculum_id=curriculum.id, status='Completed').all()
+    completed_ids = [p.topic_id_str for p in progress_records]
+    completed_titles = [t['title'] for t in topics if t['id'] in completed_ids]
+    
+    summary_input = f"Subject: {curriculum.subject}. Topics Completed: {', '.join(completed_titles)}. User Context: {user.background}"
+    md_summary = generate_session_summary(summary_input)
+    html_summary = render_md(md_summary)
+    
+    return jsonify({
+        "summary_md": md_summary,
+        "summary_html": html_summary
+    })
+
 @app.route('/api/debug/models')
 def debug_models():
     import google.generativeai as genai_lib

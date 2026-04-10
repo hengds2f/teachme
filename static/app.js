@@ -78,6 +78,57 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // 2. Dashboard Stats & Recommendation
+    if (document.querySelector('.curriculum-grid-container')) {
+        updateDashboardStats();
+    }
+
+    function updateDashboardStats() {
+        const cards = document.querySelectorAll('.topic-card');
+        const completed = document.querySelectorAll('.topic-card.completed').length;
+        const total = cards.length;
+        const percent = Math.round((completed / total) * 100);
+
+        const progressFill = document.getElementById('progress-fill');
+        const progressPercent = document.getElementById('progress-percent');
+        if (progressFill) progressFill.style.width = percent + '%';
+        if (progressPercent) progressPercent.innerText = percent + '%';
+
+        // Recommendation Logic: First non-completed card
+        const nextTopic = Array.from(cards).find(c => !c.classList.contains('completed'));
+        const recArea = document.getElementById('recommendation-area');
+        if (nextTopic && recArea) {
+            recArea.classList.remove('loader-hidden');
+            document.getElementById('rec-title').innerText = nextTopic.querySelector('h3').innerText;
+            document.getElementById('rec-desc').innerText = nextTopic.querySelector('p').innerText;
+            document.getElementById('rec-link').href = nextTopic.href;
+        }
+    }
+
+    // 3. Session Summary Flow
+    const endSessionBtn = document.getElementById('endSessionBtn');
+    const summaryModal = document.getElementById('summaryModal');
+    if (endSessionBtn && summaryModal) {
+        endSessionBtn.addEventListener('click', async () => {
+            summaryModal.classList.remove('modal-hidden');
+            summaryModal.style.display = 'flex';
+            const body = document.getElementById('summary-body');
+            body.innerHTML = '<div class="spinner"></div><p>Generating Academic Report...</p>';
+
+            try {
+                const res = await fetch('/api/session/summary');
+                const data = await res.json();
+                body.innerHTML = data.summary_html;
+            } catch (e) {
+                body.innerHTML = '<p>Error generating summary. You have made excellent progress!</p>';
+            }
+        });
+
+        document.getElementById('closeSummary').addEventListener('click', () => {
+            summaryModal.style.display = 'none';
+        });
+    }
+
     // Topic Guide Chunk Generation
     const learningContainer = document.getElementById('learning-container');
     if (learningContainer) {

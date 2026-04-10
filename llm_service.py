@@ -108,31 +108,40 @@ def generate_topic_chunk(subject, topic_title, chunk_type, current_context=""):
     behavior_instructions = ""
     if chunk_type == "concept":
         behavior_instructions = """
-        Provide an academically rigorous and technically detailed explanation of the theoretical framework.
+        IMPORTANT: Open with a compelling real-world use case or scenario that demonstrates why this concept is needed.
+        Then, provide an academically rigorous and technically detailed explanation of the theoretical framework.
         Structure the response with the following sections in Markdown:
-        1. **Theoretical Background**: Situate the concept within its historical and academic context.
-        2. **Core Mechanics & Axioms**: Explain the underlying principles with specific technical detail.
-        3. **Critical Analysis**: Discuss limitations, academic debates, or theoretical trade-offs.
+        1. **Real-World Application**: The scenario-based opening.
+        2. **Theoretical Background**: historical and academic context.
+        3. **Core Mechanics & Axioms**: principles with technical detail.
+        4. **Critical Analysis**: limitations and debates.
         
-        Mandatory: Include in-text APA style citations for any theoretical claims. 
-        Add a 'References' section at the end if citations are made.
+        Mandatory: Include in-text APA style citations. Add a 'References' section at the end.
         """
     elif chunk_type == "example":
         behavior_instructions = """
         Provide a complex, high-level worked example or case study demonstrating the empirical application of the theory.
         Ensure technical depth and use formal academic terminology. 
-        Include in-text APA citations for methodology or data sources referenced.
+        Include in-text APA citations.
         """
     elif chunk_type == "exercise":
         behavior_instructions = """
-        Provide a demanding academic exercise that requires synthesis or critical analysis of the concept. 
-        Move beyond simple recall; ask for the evaluation of a hypothetical research scenario or complex logic problem.
-        Provide the formal solution clearly at the end.
+        Provide a demanding academic exercise that requires synthesis or critical analysis. 
+        Mandatory: Format the solution at the end using the following collapsible HTML structure:
+        <details>
+          <summary>Click to reveal solution and academic explanation</summary>
+          [Formal solution and technical reasoning here]
+        </details>
         """
     elif chunk_type == "check":
         behavior_instructions = """
-        Ask a high-level comprehension question targeting critical understanding of the core theoretical mechanics.
+        Ask a high-level comprehension question targeting critical understanding.
         Use formal language and academic phrasing.
+        """
+    elif chunk_type == "takeaways":
+        behavior_instructions = """
+        Provide exactly 3-5 'Key Takeaways' that summarize the most critical technical and theoretical points of this entire topic. 
+        Format as a bulleted academic summary.
         """
 
     prompt = f"""

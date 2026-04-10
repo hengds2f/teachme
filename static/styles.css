@@ -144,10 +144,24 @@ button {
 /* FAB */
 .fab { position: fixed; bottom: 30px; right: 30px; border-radius: 50px; padding: 1rem 1.5rem; box-shadow: 0 8px 25px rgba(0,0,0,0.5); z-index: 90; font-size: 1.1rem; }
 
+/* Stats & Hero */
+.stats-hero { margin-bottom: 3rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center; }
+.progress-container { flex: 1; }
+.progress-header { display: flex; justify-content: space-between; margin-bottom: 1rem; }
+.progress-bar-bg { background: rgba(255,255,255,0.1); height: 12px; border-radius: 6px; overflow: hidden; }
+.progress-bar-fill { background: linear-gradient(90deg, var(--primary), var(--success)); height: 100%; transition: width 0.5s ease-in-out; }
+
+.recommendation-card { background: rgba(99, 102, 241, 0.1); border: 1px dashed var(--primary); padding: 1.5rem; border-radius: 12px; }
+.rec-label { font-size: 0.7rem; text-transform: uppercase; color: var(--primary); font-weight: 700; margin-bottom: 0.5rem; }
+.recommendation-card h4 { margin-bottom: 0.5rem; }
+.recommendation-card p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; }
+
 /* Print styling */
 @media print {
-    .navbar, .chunk-controls, .fab, .topic-actions, .back-link { display: none; }
+    .navbar, .chunk-controls, .fab, .topic-actions, .back-link, .stats-hero, #endSessionBtn { display: none; }
     body { background: white; color: black; }
-    .chunk-box { break-inside: avoid; border: 1px solid #ccc; background: #fff; color: #000; }
+    .glass-panel { background: white !important; border: 1px solid #eee !important; backdrop-filter: none !important; box-shadow: none !important; }
+    .chunk-box { break-inside: avoid; border: 1px solid #ccc !important; background: #fff !important; color: #000 !important; margin-bottom: 1rem; padding: 1rem; }
     .chunk-content * { color: #000 !important; }
+    .tier-title { border-bottom: 1px solid #000; color: #000; }
 }

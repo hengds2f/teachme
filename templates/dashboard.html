@@ -7,7 +7,30 @@
         <p class="badge level-badge">Level: {{ level }}</p>
     </div>
     <div class="header-actions">
+        <button id="endSessionBtn" class="btn-secondary">🏁 End Session & Summary</button>
         <a href="/reset" class="btn-secondary">Start New Subject / Reset</a>
+    </div>
+</div>
+
+<!-- Progress and Recommendation Section -->
+<div class="stats-hero glass-panel">
+    <div class="progress-container">
+        <div class="progress-header">
+            <h3>Overall Academic Mastery</h3>
+            <span id="progress-percent">0%</span>
+        </div>
+        <div class="progress-bar-bg">
+            <div id="progress-fill" class="progress-bar-fill" style="width: 0%;"></div>
+        </div>
+    </div>
+    
+    <div id="recommendation-area" class="recommendation-card loader-hidden">
+        <div class="rec-label">Next Recommended Module</div>
+        <div id="rec-content">
+            <h4 id="rec-title">Loading recommendation...</h4>
+            <p id="rec-desc"></p>
+            <a href="#" id="rec-link" class="cta-button">Resume Learning</a>
+        </div>
     </div>
 </div>
 
@@ -35,5 +58,19 @@
         </div>
     </div>
     {% endfor %}
+</div>
+
+<!-- Session Summary Modal -->
+<div id="summaryModal" class="modal-hidden">
+    <div class="modal-content glass-panel" style="max-width: 800px; text-align: left;">
+        <h2>🎓 Session Academic Report</h2>
+        <div id="summary-body" class="markdown-body">
+            <p>Analyzing your progress...</p>
+        </div>
+        <div class="modal-actions">
+            <button id="closeSummary" class="cta-button">Back to Research</button>
+            <button onclick="window.print()" class="btn-secondary">🖨️ Print Report</button>
+        </div>
+    </div>
 </div>
 {% endblock %}
