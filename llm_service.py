@@ -35,16 +35,16 @@ def generate_curriculum(subject, level, goal, user_context=""):
     Goal: "{goal if goal else 'Comprehensive Academic Mastery'}".
     User Background Context: "{user_context}"
 
-    Please design a progressive, formal academic syllabus strictly structured into four undergraduate/graduate level tiers, totaling exactly 17 topics:
-    - Tier 1: Theoretical Foundations (Topics 01-05) - Fundamental axioms, ontological frameworks, and core theoretical pillars.
-    - Tier 2: Analytical Methodologies (Topics 06-09) - Schools of thought, research methods, and technical frameworks.
-    - Tier 3: Advanced Synthesis (Topics 10-11) - Critical analysis, complex intersections, and dialectical review of the field.
-    - Tier 4: Empirical Applications & Research (Topics 12-17) - Detailed case studies, research design, and real-world industrial or academic application.
+    Please design a progressive, formal academic syllabus strictly structured into four tiers, totaling exactly 17 topics:
+    - Tier 1: Foundations (Topics 01-05) - Core concepts, no prerequisites, build the mental model.
+    - Tier 2: Intermediate (Topics 06-09) - Practical application, patterns, real-world integration.
+    - Tier 3: Advanced (Topics 10-11) - Complex patterns, optimisation, architectural trade-offs.
+    - Tier 4: Use Case Guides (Topics 12-17) - Scenario-based walkthroughs tied to real problems.
 
     Respond ONLY in valid JSON format. The JSON should be a list of objects with the following keys:
     - "id": a string from "01" to "17"
     - "title": technical academic topic name
-    - "tier": the tier name (Theoretical Foundations, Analytical Methodologies, Advanced Synthesis, Empirical Applications & Research)
+    - "tier": the tier name (Foundations, Intermediate, Advanced, Use Case Guides)
     - "description": a highly detailed academic overview of the module context (at least 3-4 sentences), including the intended learning outcomes and theoretical intersections.
 
     Do not use markdown blocks like ```json ... ```, just pure JSON output. Ensure the tone is strictly formal and academic.
@@ -70,12 +70,26 @@ def generate_demo_curriculum(subject):
     Returns a high-quality, structured curriculum for when the AI is on cooldown.
     """
     return [
-        {"id": "01", "title": f"Axiomatic Foundations of {subject}", "tier": "Theoretical Foundations", "description": "A comprehensive ontological deep-dive into the fundamental building blocks and theoretical mental models of the field."},
-        {"id": "02", "title": "Epistemological Evolution", "tier": "Theoretical Foundations", "description": "Analyzing the historical development and academic shift in paradigms over the last century."},
-        {"id": "03", "title": "Methodological Frameworks", "tier": "Analytical Methodologies", "description": "Establishing the analytical tools and research environments necessary for formal study."},
-        {"id": "04", "title": "Heuristic Patterns & Best Practices", "tier": "Analytical Methodologies", "description": "Synthesizing professional standards with rigorous academic efficiency principles."},
-        {"id": "05", "title": "Advanced Theoretical Synthesis", "tier": "Advanced Synthesis", "description": "Evaluating complex scaling patterns and high-level architectural trade-offs in modern research."},
-        {"id": "06", "title": "Empirical Applications & Research Design", "tier": "Empirical Applications & Research", "description": "Constructing formal research scenarios tied to real-world industrial and academic problem-solving."}
+        {"id": "01", "title": f"Axiomatic Foundations of {subject}", "tier": "Foundations", "description": "A comprehensive ontological deep-dive into the fundamental building blocks and theoretical mental models of the field."},
+        {"id": "02", "title": "Epistemological Evolution", "tier": "Foundations", "description": "Analyzing the historical development and academic shift in paradigms over the last century."},
+        {"id": "03", "title": "Core Theoretical Pillars", "tier": "Foundations", "description": "Establishing the fundamental axioms and structural frameworks required for specialized research."},
+        {"id": "04", "title": "Conceptual Synthesis", "tier": "Foundations", "description": "Bridging initial knowledge with complex theoretical intersections and preliminary research methods."},
+        {"id": "05", "title": "Prerequisite Review", "tier": "Foundations", "description": "Ensuring all foundational concepts are synthesized before transitioning to analytical methodologies."},
+        
+        {"id": "06", "title": "Methodological Frameworks", "tier": "Intermediate", "description": "Establishing the analytical tools and research environments necessary for formal study."},
+        {"id": "07", "title": "Empirical Pattern Recognition", "tier": "Intermediate", "description": "Synthesizing professional standards with rigorous academic efficiency principles and real-world data patterns."},
+        {"id": "08", "title": "Practical Application Models", "tier": "Intermediate", "description": "Implementing theoretical models in controlled research environments or simulated industrial scenarios."},
+        {"id": "09", "title": "Systemic Integration", "tier": "Intermediate", "description": "Evaluating the integration of core modules within larger systemic or organizational structures."},
+        
+        {"id": "10", "title": "Advanced Theoretical Synthesis", "tier": "Advanced", "description": "Evaluating complex scaling patterns and high-level architectural trade-offs in modern research."},
+        {"id": "11", "title": "Strategic Optimization Design", "tier": "Advanced", "description": "Refining complex frameworks for maximum efficiency while adhering to strict academic and technical constraints."},
+        
+        {"id": "12", "title": "Empirical Research Design A", "tier": "Use Case Guides", "description": "Constructing formal research scenarios tied to real-world industrial and academic problem-solving."},
+        {"id": "13", "title": "Case Study Analysis: Resilience", "tier": "Use Case Guides", "description": "Analyzing historical data and failure points through a sophisticated academic lens to build resilient systems."},
+        {"id": "14", "title": "Strategic Implementation Walkthrough", "tier": "Use Case Guides", "description": "A detailed, act-by-act pedagogical guide through a high-complexity real-world deployment scenario."},
+        {"id": "15", "title": "Academic Review of Current Trends", "tier": "Use Case Guides", "description": "Synthesizing the latest research papers and empirical evidence into a forward-looking mastery guide."},
+        {"id": "16", "title": "Heuristic Peer Review Scenario", "tier": "Use Case Guides", "description": "Critiquing advanced implementations through the dual-lens of academic rigor and industrial applicability."},
+        {"id": "17", "title": "Capstone Synthesis Project", "tier": "Use Case Guides", "description": "A final synthesis encompassing all theoretical and empirical modules into one comprehensive academic demonstration."}
     ]
 
 
