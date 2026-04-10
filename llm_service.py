@@ -70,13 +70,12 @@ def generate_demo_curriculum(subject):
     Returns a high-quality, structured curriculum for when the AI is on cooldown.
     """
     return [
-        {"id": "01", "title": f"The Core Principles of {subject}", "tier": "Foundations", "description": "A comprehensive deep-dive into the fundamental building blocks and mental models."},
-        {"id": "02", "title": "History and Evolution", "tier": "Foundations", "description": "Understanding how this field evolved and where it is heading next."},
-        {"id": "03", "title": "Tools and Environment", "tier": "Foundations", "description": "Setting up your workspace and mastering the essential tools of the trade."},
-        {"id": "04", "title": "Best Practices & Patterns", "tier": "Intermediate", "description": "Moving from basics to professional-grade standards and efficiency."},
-        {"id": "05", "title": "Real-world Case Studies", "tier": "Intermediate", "description": "Analyzing successful implementations and learning from mistakes."},
-        {"id": "06", "title": "Advanced Performance Optimization", "tier": "Advanced", "description": "Fine-tuning for scale, speed, and long-term sustainability."},
-        {"id": "07", "title": "The Future of the Field", "tier": "Use Case Guides", "description": "Emerging trends and how to stay ahead of the curve."}
+        {"id": "01", "title": f"Axiomatic Foundations of {subject}", "tier": "Theoretical Foundations", "description": "A comprehensive ontological deep-dive into the fundamental building blocks and theoretical mental models of the field."},
+        {"id": "02", "title": "Epistemological Evolution", "tier": "Theoretical Foundations", "description": "Analyzing the historical development and academic shift in paradigms over the last century."},
+        {"id": "03", "title": "Methodological Frameworks", "tier": "Analytical Methodologies", "description": "Establishing the analytical tools and research environments necessary for formal study."},
+        {"id": "04", "title": "Heuristic Patterns & Best Practices", "tier": "Analytical Methodologies", "description": "Synthesizing professional standards with rigorous academic efficiency principles."},
+        {"id": "05", "title": "Advanced Theoretical Synthesis", "tier": "Advanced Synthesis", "description": "Evaluating complex scaling patterns and high-level architectural trade-offs in modern research."},
+        {"id": "06", "title": "Empirical Applications & Research Design", "tier": "Empirical Applications & Research", "description": "Constructing formal research scenarios tied to real-world industrial and academic problem-solving."}
     ]
 
 
