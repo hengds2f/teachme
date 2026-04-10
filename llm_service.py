@@ -108,15 +108,14 @@ def generate_topic_chunk(subject, topic_title, chunk_type, current_context=""):
     behavior_instructions = ""
     if chunk_type == "concept":
         behavior_instructions = """
-        IMPORTANT: Open with a compelling real-world use case or scenario that demonstrates why this concept is needed.
-        Then, provide an academically rigorous and technically detailed explanation of the theoretical framework.
-        Structure the response with the following sections in Markdown:
-        1. **Real-World Application**: The scenario-based opening.
-        2. **Theoretical Background**: historical and academic context.
-        3. **Core Mechanics & Axioms**: principles with technical detail.
-        4. **Critical Analysis**: limitations and debates.
+        MANDATORY: You MUST open the response with a section titled '## 🌍 Real-World Case Study'. 
+        This section must present a specific, sophisticated scenario or industrial challenge that illustrates the concept's practical necessity.
         
-        Mandatory: Include in-text APA style citations. Add a 'References' section at the end.
+        Follow this with:
+        2. **Theoretical Framework & Axioms**: Deep theoretical explanation with technical rigor.
+        3. **Critical Academic Analysis**: Limitations, debates, and trade-offs.
+        
+        Mandatory: Include in-text APA style citations and a 'References' section.
         """
     elif chunk_type == "example":
         behavior_instructions = """

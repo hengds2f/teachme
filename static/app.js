@@ -132,6 +132,35 @@ document.addEventListener('DOMContentLoaded', () => {
     // Topic Guide Chunk Generation
     const learningContainer = document.getElementById('learning-container');
     if (learningContainer) {
+        initTopicGuide();
+
+        function initTopicGuide() {
+            const chunksArea = document.getElementById('chunks-area');
+            const roadmapSteps = document.querySelectorAll('.roadmap-step');
+            
+            // Highlight existing steps
+            const loadedTypes = Array.from(chunksArea.querySelectorAll('.chunk-box')).map(c => {
+                const label = c.querySelector('.chunk-label').innerText.toLowerCase();
+                return label;
+            });
+            
+            roadmapSteps.forEach(step => {
+                const type = step.id.replace('step-', '');
+                if (loadedTypes.includes(type) || (type === 'concept' && loadedTypes.includes('use case'))) {
+                    step.classList.add('active');
+                }
+            });
+
+            // AUTO-TRIGGER first concept if empty
+            if (chunksArea.children.length === 0) {
+                const conceptBtn = document.querySelector('.dynamic-btn[data-type="concept"]');
+                if (conceptBtn) {
+                    console.log("Auto-initializing topic with first Use Case & Concept...");
+                    conceptBtn.click();
+                }
+            }
+        }
+
         const topicId = learningContainer.dataset.topicId;
         const chunksArea = document.getElementById('chunks-area');
         const chunkControls = document.getElementById('chunk-controls');
@@ -163,6 +192,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         `;
                         chunksArea.appendChild(newChunkBox);
                         newChunkBox.scrollIntoView({ behavior: 'smooth' });
+                        
+                        // Update roadmap
+                        const step = document.getElementById(`step-${data.type}`);
+                        if (step) step.classList.add('active');
                     }
                 } catch (err) {
                     console.error('Error generating chunk:', err);
@@ -283,3 +316,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+/* New Styles for Roadmap & Details */
+const styleSheet = document.createElement("style");
+styleSheet.innerText = `
+    .roadmap-container { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; padding: 1.5rem; position: sticky; top: 100px; z-index: 80; }
+    .roadmap-step { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; opacity: 0.3; transition: all 0.5s; cursor: pointer; flex: 1; }
+    .roadmap-step.active { opacity: 1; color: var(--accent); }
+    .step-num { width: 32px; height: 32px; border-radius: 50%; background: var(--secondary); display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid var(--glass-border); transition: all 0.3s;}
+    .roadmap-step.active .step-num { background: var(--accent); border-color: #fff; box-shadow: 0 0 15px var(--accent); }
+    .step-text { font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; text-align: center; }
+    .roadmap-line { flex-grow: 1; height: 2px; background: var(--glass-border); margin: 0 10px; margin-bottom: 1.5rem; }
+
+    /* Details Styling */
+    details { background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid var(--glass-border); margin-top: 1.5rem; overflow: hidden; }
+    summary { padding: 1rem; font-weight: 700; cursor: pointer; color: var(--accent); outline: none; list-style: none; transition: background 0.3s;}
+    summary:hover { background: rgba(255,255,255,0.05); }
+    summary::-webkit-details-marker { display: none; }
+    details[open] summary { border-bottom: 1px solid var(--glass-border); background: rgba(0,0,0,0.3); }
+    details > div { padding: 1.5rem; background: rgba(0,0,0,0.1); }
+`;
+document.head.appendChild(styleSheet);
