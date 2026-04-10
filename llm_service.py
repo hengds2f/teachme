@@ -29,24 +29,25 @@ def generate_curriculum(subject, level, goal, user_context=""):
     genai.configure(api_key=api_key)
         
     prompt = f"""
-    You are an expert curriculum designer and educator. The learner wants to learn about: "{subject}".
-    Current level: "{level if level else 'Beginner'}".
-    Goal: "{goal if goal else 'General knowledge'}".
+    You are a Distinguished University Professor and Senior Academic Researcher tasked with designing a high-rigor academic curriculum. 
+    The learner wants to master: "{subject}".
+    Current level: "{level if level else 'University Freshman'}".
+    Goal: "{goal if goal else 'Comprehensive Academic Mastery'}".
     User Background Context: "{user_context}"
 
-    Please design a progressive learning curriculum strictly structured into four tiers, totaling exactly 17 topics:
-    - Tier 1: Foundations (Topics 01-05) - Core concepts, no prerequisites, build the mental model.
-    - Tier 2: Intermediate (Topics 06-09) - Practical application, patterns, real-world integration.
-    - Tier 3: Advanced (Topics 10-11) - Complex patterns, optimization, architectural trade-offs.
-    - Tier 4: Use Case Guides (Topics 12-17) - Scenario-based walkthroughs tied to real problems.
+    Please design a progressive, formal academic syllabus strictly structured into four undergraduate/graduate level tiers, totaling exactly 17 topics:
+    - Tier 1: Theoretical Foundations (Topics 01-05) - Fundamental axioms, ontological frameworks, and core theoretical pillars.
+    - Tier 2: Analytical Methodologies (Topics 06-09) - Schools of thought, research methods, and technical frameworks.
+    - Tier 3: Advanced Synthesis (Topics 10-11) - Critical analysis, complex intersections, and dialectical review of the field.
+    - Tier 4: Empirical Applications & Research (Topics 12-17) - Detailed case studies, research design, and real-world industrial or academic application.
 
     Respond ONLY in valid JSON format. The JSON should be a list of objects with the following keys:
     - "id": a string from "01" to "17"
-    - "title": concise topic name
-    - "tier": the tier name (Foundations, Intermediate, Advanced, Use Case Guides)
-    - "description": a brief 1-2 sentence description of what will be learned
+    - "title": technical academic topic name
+    - "tier": the tier name (Theoretical Foundations, Analytical Methodologies, Advanced Synthesis, Empirical Applications & Research)
+    - "description": a highly detailed academic overview of the module context (at least 3-4 sentences), including the intended learning outcomes and theoretical intersections.
 
-    Do not use markdown blocks like ```json ... ```, just pure JSON output.
+    Do not use markdown blocks like ```json ... ```, just pure JSON output. Ensure the tone is strictly formal and academic.
     """
     
     try:
@@ -93,26 +94,47 @@ def generate_topic_chunk(subject, topic_title, chunk_type, current_context=""):
     # Ensure chunk type behavior
     behavior_instructions = ""
     if chunk_type == "concept":
-        behavior_instructions = "Open with a real-world scenario before explaining the theory. Keep it clear, concise, and focused on building a mental model."
+        behavior_instructions = """
+        Provide an academically rigorous and technically detailed explanation of the theoretical framework.
+        Structure the response with the following sections in Markdown:
+        1. **Theoretical Background**: Situate the concept within its historical and academic context.
+        2. **Core Mechanics & Axioms**: Explain the underlying principles with specific technical detail.
+        3. **Critical Analysis**: Discuss limitations, academic debates, or theoretical trade-offs.
+        
+        Mandatory: Include in-text APA style citations for any theoretical claims. 
+        Add a 'References' section at the end if citations are made.
+        """
     elif chunk_type == "example":
-        behavior_instructions = "Provide a concrete, step-by-step worked example demonstrating the concept in action."
+        behavior_instructions = """
+        Provide a complex, high-level worked example or case study demonstrating the empirical application of the theory.
+        Ensure technical depth and use formal academic terminology. 
+        Include in-text APA citations for methodology or data sources referenced.
+        """
     elif chunk_type == "exercise":
-        behavior_instructions = "Give the user a short task or code/logic exercise to practice what was just learned. Provide the solution distinctly at the end."
+        behavior_instructions = """
+        Provide a demanding academic exercise that requires synthesis or critical analysis of the concept. 
+        Move beyond simple recall; ask for the evaluation of a hypothetical research scenario or complex logic problem.
+        Provide the formal solution clearly at the end.
+        """
     elif chunk_type == "check":
-        behavior_instructions = "Ask a single multiple-choice or short-answer comprehension question to activate retrieval practice."
+        behavior_instructions = """
+        Ask a high-level comprehension question targeting critical understanding of the core theoretical mechanics.
+        Use formal language and academic phrasing.
+        """
 
     prompt = f"""
-    You are an expert personalized tutor teaching the subject "{subject}".
+    You are a Distinguished University Professor and Senior Academic Researcher teaching the subject "{subject}".
     The current topic is: "{topic_title}".
-    We are generating a specific type of educational chunk: [{chunk_type.upper()}].
+    We are generating a specific type of educational module: [{chunk_type.upper()}].
 
-    Instructions for this chunk:
+    Instructions for this module:
     {behavior_instructions}
 
-    User current context/background (adapt your explanation to these):
+    User current context/background (integrate these into the formal academic explanation):
     {current_context}
 
-    Please output the content in formatted Markdown. Make it engaging, visually structured, and easy to read.
+    Please output the content in formal, academic Markdown. Prioritize depth, rigor, and technical accuracy over brevity. 
+    Ensure all formatting is consistent with a university-level textbook or research paper.
     """
 
     try:
@@ -138,14 +160,14 @@ def re_explain_concept(concept_text, learner_feedback, user_context=""):
     genai.configure(api_key=api_key)
 
     prompt = f"""
-    You are an expert personalized tutor. The learner didn't quite understand the following concept:
+    You are a Distinguished University Professor. The learner requires a clarifying academic review of the following concept:
     "{concept_text[:500]}..."
 
-    The learner's specific feedback or state: "{learner_feedback}"
-    User profile: "{user_context}"
+    The learner's inquiry or specific cognitive dissonance: "{learner_feedback}"
+    Academic context: "{user_context}"
 
-    Please re-explain the core idea using a completely DIFFERENT framing, a new analogy, or a simpler worked example. 
-    Output in formatted Markdown.
+    Please provide a sophisticated academic re-explanation. Use a different theoretical lens, a more detailed analogy, or a deeper analytical framework. 
+    Maintain high technical rigor and formal tone in Markdown.
     """
     try:
         model = genai.GenerativeModel(MODEL_NAME)
