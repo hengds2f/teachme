@@ -52,8 +52,19 @@ def generate_curriculum(subject, level, goal, user_context=""):
     
     try:
         model = genai.GenerativeModel(MODEL_NAME)
-        response = model.generate_content(prompt)
-        text_output = response.text.replace("```json", "").replace("```", "").strip()
+        # Use generation_config for strict JSON output if supported
+        response = model.generate_content(
+            prompt,
+            generation_config={"response_mime_type": "application/json"}
+        )
+        
+        text_output = response.text.strip()
+        # Fallback cleaning if some models still wrap in markdown
+        if "```json" in text_output:
+            text_output = text_output.split("```json")[1].split("```")[0].strip()
+        elif "```" in text_output:
+            text_output = text_output.split("```")[1].split("```")[0].strip()
+            
         data = json.loads(text_output)
         return data
     except Exception as e:
