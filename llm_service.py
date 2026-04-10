@@ -53,42 +53,39 @@ def generate_curriculum(subject, level, goal, user_context=""):
     - Tier 3: Advanced (Topics 10-11)
     - Tier 4: Use Case Guides (Topics 12-17)
 
-    Respond ONLY in valid JSON format. The JSON should be a list of objects with the following keys:
-    - "id": a string from "01" to "17"
-    - "title": technical academic topic name
-    - "tier": the tier name (Foundations, Intermediate, Advanced, Use Case Guides)
-    - "description": a concise academic overview of the module context (2 sentences).
-
-    Ensure NO trailing commas and strictly valid JSON syntax. No markdown wrappers.
+    Return a list of 17 objects. Each description must be exactly 1 academic sentence.
     """
     
+    # Define the strict schema for curriculum generation
+    curriculum_schema = {
+        "type": "ARRAY",
+        "items": {
+            "type": "OBJECT",
+            "properties": {
+                "id": {"type": "STRING", "description": "ID from 01 to 17"},
+                "title": {"type": "STRING", "description": "Academic topic name"},
+                "tier": {"type": "STRING", "description": "The tier name"},
+                "description": {"type": "STRING", "description": "1-sentence academic overview"}
+            },
+            "required": ["id", "title", "tier", "description"]
+        }
+    }
+
     try:
         model = genai.GenerativeModel(MODEL_NAME)
-        # Use generation_config for strict JSON output and higher token limit
+        # Use generation_config for strict SCHEMA enforcement
         response = model.generate_content(
             prompt,
             generation_config={
                 "response_mime_type": "application/json",
-                "temperature": 0.2,
+                "response_schema": curriculum_schema,
+                "temperature": 0.1,
                 "max_output_tokens": 4096
             }
         )
         
         text_output = response.text.strip()
-        
-        # Robust JSON extraction
-        try:
-            # Try parsing directly first
-            data = json.loads(text_output)
-        except json.JSONDecodeError:
-            # Fallback cleaning: find the first '[' and last ']'
-            start = text_output.find('[')
-            end = text_output.rfind(']')
-            if start != -1 and end != -1:
-                text_output = text_output[start:end+1]
-                data = json.loads(text_output)
-            else:
-                raise
+        data = json.loads(text_output)
         return data
     except Exception as e:
         err_str = str(e)
