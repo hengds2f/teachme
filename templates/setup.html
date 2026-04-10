@@ -6,6 +6,14 @@
     <p class="subtitle">Define your theoretical focus, and we'll construct a rigorous academic syllabus.</p>
     
     <form id="setupForm" class="setup-form">
+        <!-- Login CTA -->
+        {% if not session.get('user_id') %}
+        <div class="auth-promo glass-panel" style="margin-bottom: 2rem; border-color: var(--accent); background: rgba(99, 102, 241, 0.1);">
+            <p><strong>💡 Want to save your progress?</strong> Sign in with Google to resume your lessons from any device.</p>
+            <a href="/login" class="cta-button" style="background: #4285F4; display: inline-block; margin-top: 0.5rem;">Sign in with Google</a>
+        </div>
+        {% endif %}
+
         <div class="form-group">
             <label>Subject Topic:</label>
             <input type="text" id="subject" placeholder="e.g. React.js, Macroeconomics, Quantum Physics" required>

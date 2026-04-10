@@ -7,6 +7,9 @@ db = SQLAlchemy()
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=True)
+    google_id = db.Column(db.String(100), unique=True, nullable=True)
+    profile_pic = db.Column(db.String(255), nullable=True)
     # Context profile captured and updated over time
     background = db.Column(db.Text, default="")
     learning_style = db.Column(db.Text, default="")

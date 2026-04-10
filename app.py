@@ -7,6 +7,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from database import db, User, Curriculum, TopicProgress, SessionActivity
 from llm_service import generate_curriculum, generate_topic_chunk, re_explain_concept, generate_session_summary
 import markdown
+from authlib.integrations.flask_client import OAuth
 
 # Configure Logging
 logging.basicConfig(
@@ -26,6 +27,21 @@ app.config['SESSION_COOKIE_SECURE'] = True
 
 db.init_app(app)
 
+oauth = OAuth(app)
+google = oauth.register(
+    name='google',
+    client_id=os.getenv('GOOGLE_CLIENT_ID'),
+    client_secret=os.getenv('GOOGLE_CLIENT_SECRET'),
+    access_token_url='https://accounts.google.com/o/oauth2/token',
+    access_token_params=None,
+    authorize_url='https://accounts.google.com/o/oauth2/auth',
+    authorize_params=None,
+    api_base_url='https://www.googleapis.com/oauth2/v1/',
+    userinfo_endpoint='https://openidconnect.googleapis.com/v1/userinfo',
+    client_kwargs={'scope': 'openid email profile'},
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration'
+)
+
 with app.app_context():
     db.create_all()
 
@@ -39,11 +55,6 @@ def make_session_permanent():
 
 @app.route('/')
 def index():
-    user_id_from_url = request.args.get('user_id')
-    
-    if 'user_id' not in session and user_id_from_url:
-        session['user_id'] = user_id_from_url
-        
     if 'user_id' not in session:
         return render_template('setup.html')
         
@@ -52,22 +63,64 @@ def index():
         session.pop('user_id', None)
         return render_template('setup.html')
         
-    curriculum = Curriculum.query.filter_by(user_id=user.id).order_by(Curriculum.id.desc()).first()
+    # Get all subjects for this user to allow "Resume"
+    curriculums = Curriculum.query.filter_by(user_id=user.id).order_by(Curriculum.created_at.desc()).all()
+    
+    # If a specific curriculum is requested via ID
+    curr_id = request.args.get('curriculum_id')
+    if curr_id:
+        curriculum = Curriculum.query.filter_by(id=curr_id, user_id=user.id).first()
+    else:
+        curriculum = curriculums[0] if curriculums else None
     
     if not curriculum:
         return render_template('setup.html')
         
     topics = json.loads(curriculum.topics_json)
     progress_records = TopicProgress.query.filter_by(curriculum_id=curriculum.id).all()
-    
     progress_map = {p.topic_id_str: p for p in progress_records}
     
     return render_template('dashboard.html', 
-                          user=user, 
+                          user=user,
+                          curriculums=curriculums,
+                          current_curriculum=curriculum,
                           subject=curriculum.subject, 
                           level=curriculum.level,
                           topics=topics,
                           progress_map=progress_map)
+
+# OAuth Routes
+@app.route('/login')
+def login():
+    redirect_uri = url_for('authorize', _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+@app.route('/login/callback')
+def authorize():
+    token = google.authorize_access_token()
+    resp = google.get('userinfo')
+    user_info = resp.json()
+    
+    # Check if user exists
+    user = User.query.filter_by(email=user_info['email']).first()
+    if not user:
+        # Create new user
+        user = User(
+            username=user_info['email'].split('@')[0] + '_' + os.urandom(2).hex(),
+            email=user_info['email'],
+            google_id=user_info['id'],
+            profile_pic=user_info.get('picture', '')
+        )
+        db.session.add(user)
+        db.session.commit()
+    
+    session['user_id'] = user.id
+    return redirect(url_for('index'))
+
+@app.route('/logout')
+def logout():
+    session.pop('user_id', None)
+    return redirect(url_for('index'))
 
 @app.route('/api/setup', methods=['POST'])
 def handle_setup():

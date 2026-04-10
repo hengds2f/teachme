@@ -29,24 +29,18 @@ body {
 h1, h2, h3 { font-weight: 700; margin-bottom: 0.5rem; }
 a { text-decoration: none; color: var(--primary); }
 
-/* Navigation */
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    padding: 1.5rem 3rem;
-    background: var(--glass-bg);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--glass-border);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
-.logo { font-size: 1.5rem; font-weight: 700; color: #fff; letter-spacing: 1px; }
-.nav-links a { color: var(--text-main); margin-left: 1.5rem; font-weight: 600; transition: color 0.3s;}
+/* Navbar & Identity */
+.navbar { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 2rem; background: var(--glass-bg); backdrop-filter: blur(15px); border-bottom: 1px solid var(--glass-border); position: sticky; top: 0; z-index: 100; }
+.nav-links { display: flex; gap: 2rem; align-items: center; }
+.nav-links a { color: var(--text); text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: color 0.3s; }
 .nav-links a:hover { color: var(--accent); }
 
-/* Container */
-.container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+/* Library Styles */
+.library-item.active { border-color: var(--accent) !important; background: rgba(99, 102, 241, 0.1) !important; box-shadow: 0 0 15px rgba(99, 102, 241, 0.2); }
+.library-item:hover { transform: translateY(-3px); background: rgba(255,255,255,0.1) !important; }
+
+/* Grid layout */
+.curriculum-grid-container { display: grid; grid-template-columns: 1fr; gap: 3rem; margin-top: 2rem; }
 
 /* Panels & Glassmorphism */
 .glass-panel {
