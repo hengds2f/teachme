@@ -1,7 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // 0. Auto-Recovery Logic (Session Restoration)
-    if (document.getElementById('setupForm')) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isNewSubject = urlParams.get('new') === '1';
+    const hasUserId = urlParams.has('user_id');
+
+    if (isNewSubject) {
+        localStorage.removeItem('teachme_curriculum');
+        console.log("New Subject requested. Clearing local cache.");
+    }
+
+    if (document.getElementById('setupForm') && !isNewSubject && !hasUserId) {
         const savedData = localStorage.getItem('teachme_curriculum');
         if (savedData) {
             const data = JSON.parse(savedData);
@@ -9,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('setupForm').style.display = 'none';
             const loader = document.getElementById('loader');
             loader.classList.remove('loader-hidden');
-            loader.querySelector('p').innerText = "Restoring your learning path...";
+            loader.querySelector('p').innerText = "Restoring your last academic session...";
             
             fetch('/api/sync', {
                 method: 'POST',
