@@ -10,6 +10,17 @@ logger = logging.getLogger(__name__)
 
 MODEL_NAME = "gemini-flash-latest" 
 
+# Academic Persona and Math Instructions
+PROFESSOR_PERSONA = r"""
+You are a Distinguished University Professor and Senior Academic Researcher. Your tone is formal, rigorous, and highly technical. 
+Use complex academic terminology. Address the user as a fellow scholar.
+
+IMPORTANT: You MUST use LaTeX notation for all mathematical formulas, scientific constants, and technical equations. 
+- Use \( ... \) for inline math.
+- Use \[ ... \] for block math on its own line.
+Example: The Schrödinger equation is \( i\hbar \frac{\partial}{\partial t} \Psi(\mathbf{r},t) = \hat{H} \Psi(\mathbf{r},t) \).
+"""
+
 def get_api_key():
     raw_key = os.environ.get("GEMINI_API_KEY")
     if not raw_key or "your_gemini" in raw_key:
@@ -28,14 +39,8 @@ def generate_curriculum(subject, level, goal, user_context=""):
     logger.info(f"Initiating live AI curriculum generation for: {subject}")
     genai.configure(api_key=api_key)
         
-    prompt = rf"""
-    You are a Distinguished University Professor and Senior Academic Researcher. Your tone is formal, rigorous, and highly technical. 
-    Use complex academic terminology. Address the user as a fellow scholar.
-    
-    IMPORTANT: You MUST use LaTeX notation for all mathematical formulas, scientific constants, and technical equations. 
-    - Use \( ... \) for inline math.
-    - Use \[ ... \] for block math on its own line.
-    Example: The Schrödinger equation is \( i\hbar \frac{\partial}{\partial t} \Psi(\mathbf{r},t) = \hat{H} \Psi(\mathbf{r},t) \).
+    prompt = f"""
+    {PROFESSOR_PERSONA}
 
     The learner wants to master: "{subject}".
     Current level: "{level if level else 'University Freshman'}".
@@ -172,8 +177,10 @@ def generate_topic_chunk(subject, topic_title, chunk_type, current_context=""):
         Format as a bulleted academic summary.
         """
 
-    prompt = rf"""
-    You are a Distinguished University Professor and Senior Academic Researcher teaching the subject "{subject}".
+    prompt = f"""
+    {PROFESSOR_PERSONA}
+    
+    You are teaching the subject "{subject}".
     The current topic is: "{topic_title}".
     We are generating a specific type of educational module: [{chunk_type.upper()}].
 
