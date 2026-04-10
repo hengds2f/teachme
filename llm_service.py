@@ -75,19 +75,33 @@ def generate_curriculum(subject, level, goal, user_context=""):
     Return a list of 17 objects. Each description must be exactly 1 academic sentence.
     """
     
+    # Combined Safety Settings to prevent truncation on academic topics
+    safety_settings = [
+        {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_ONLY_HIGH"},
+        {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_ONLY_HIGH"},
+        {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_ONLY_HIGH"},
+        {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_ONLY_HIGH"},
+    ]
+
     # Robust Curriculum Generation Helper
-    def _attempt_generation(p, schema, temp=0.0):
+    def _attempt_generation(p, schema=None, temp=0.0):
         model = genai.GenerativeModel(MODEL_NAME)
+        config = {
+            "response_mime_type": "application/json",
+            "temperature": temp,
+            "max_output_tokens": 4096
+        }
+        if schema:
+            config["response_schema"] = schema
+
         response = model.generate_content(
             p,
-            generation_config={
-                "response_mime_type": "application/json",
-                "response_schema": schema,
-                "temperature": temp,
-                "max_output_tokens": 4096
-            }
+            generation_config=config,
+            safety_settings=safety_settings
         )
+        
         t_out = response.text.strip()
+        
         # Robust Bracket Search Recovery
         try:
             return json.loads(t_out)
@@ -99,21 +113,27 @@ def generate_curriculum(subject, level, goal, user_context=""):
             raise
 
     try:
-        # First attempt with full schema
+        # ATTEMPT 1: Strict Schema + Deterministic (Accuracy)
         return _attempt_generation(prompt, CURRICULUM_SCHEMA, temp=0.0)
     except Exception as e:
-        logger.warning(f"First curriculum generation attempt failed: {e}. Retrying with relaxed constraints...")
+        logger.warning(f"Attempt 1 failed for {subject}: {e}. Trying Relaxed Schema...")
         try:
-            # Second attempt: slightly higher temperature or just a retry
-            return _attempt_generation(prompt, CURRICULUM_SCHEMA, temp=0.2)
+            # ATTEMPT 2: Strict Schema + More Creativity (Fluidity)
+            return _attempt_generation(prompt, CURRICULUM_SCHEMA, temp=0.5)
         except Exception as e2:
-            err_str = str(e2)
-            if "429" in err_str and "quota" in err_str.lower():
-                logger.warning("Daily AI Quota reached. Switching to Pro Demo Mode.")
-                return generate_demo_curriculum(subject)
-            
-            logger.error(f"Critical error in curriculum generation for {subject}: {err_str}")
-            return generate_mock_curriculum(subject, f"Final fallback error: {err_str}")
+            logger.warning(f"Attempt 2 failed for {subject}: {e2}. Final Fallback: Schema-less Generation...")
+            try:
+                # ATTEMPT 3: NO SCHEMA. Just free-talk JSON to avoid schema conflicts.
+                p_fallback = prompt + "\n\nCRITICAL: Return ONLY a raw JSON array. Do not use conversational text."
+                return _attempt_generation(p_fallback, schema=None, temp=0.7)
+            except Exception as e3:
+                err_str = str(e3)
+                if "429" in err_str and "quota" in err_str.lower():
+                    logger.warning("Daily AI Quota reached. Switching to Pro Demo Mode.")
+                    return generate_demo_curriculum(subject)
+                
+                logger.error(f"Triple-Stage failure for {subject}: {err_str}")
+                return generate_mock_curriculum(subject, f"Final fallback error: {err_str}")
 
 def generate_demo_curriculum(subject):
     """
