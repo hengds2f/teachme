@@ -35,7 +35,11 @@ CURRICULUM_SCHEMA = {
         "properties": {
             "id": {"type": "STRING", "description": "ID from 01 to 17"},
             "title": {"type": "STRING", "description": "Academic topic name"},
-            "tier": {"type": "STRING", "description": "The tier name"},
+            "tier": {
+                "type": "STRING", 
+                "description": "Must be one of the specified tiers",
+                "enum": ["Foundations", "Intermediate", "Advanced", "Use Case Guides"]
+            },
             "description": {"type": "STRING", "description": "1-sentence academic overview"}
         },
         "required": ["id", "title", "tier", "description"]

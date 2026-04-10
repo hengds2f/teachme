@@ -80,6 +80,26 @@
             {% endfor %}
         </div>
     </div>
+    <div class="tier-section">
+        <h2 class="tier-title">General research & unassigned</h2>
+        <div class="topics-grid">
+            {% for topic in topics %}
+                {% if topic.tier not in tiers %}
+                    {% set prog = progress_map[topic.id] %}
+                    <a href="/topic/{{ topic.id }}?user_id={{ session.get('user_id') }}" class="topic-card {% if prog.status == 'Completed' %}completed{% elif prog.status == 'In Progress' %}in-progress{% endif %}">
+                        <div class="topic-header">
+                            <span class="topic-id">{{ topic.id }}</span>
+                            <span class="topic-status">
+                                {% if prog.status == 'Completed' %}✅{% elif prog.status == 'In Progress' %}⏳{% endif %}
+                            </span>
+                        </div>
+                        <h3>{{ topic.title }}</h3>
+                        <p>{{ topic.description }}</p>
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
     {% endfor %}
 </div>
 

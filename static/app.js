@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (document.getElementById('setupForm') && !isNewSubject && !hasUserId) {
+        // ONLY SYNC if we aren't already identified by a Google session
         const savedData = localStorage.getItem('teachme_curriculum');
         if (savedData) {
             const data = JSON.parse(savedData);

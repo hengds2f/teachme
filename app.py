@@ -182,25 +182,38 @@ def authorize():
             logger.error("OAuth failed: No email returned in user_info")
             return "Authentication failed: No email provided by Google.", 400
             
-        # Check if user exists
+        # Check if user exists by email first (to link previous anonymous sessions if they used email)
         user = User.query.filter_by(email=email).first()
-        if not user:
-            # Google OIDC usually uses 'sub' for the unique identifier
+        
+        if user:
+            # Update existing user with Google details if missing
             google_id = user_info.get('sub') or user_info.get('id')
-            
+            if not user.google_id:
+                user.google_id = google_id
+            if not user.profile_pic:
+                user.profile_pic = user_info.get('picture', '')
+        else:
             # Create new user
+            google_id = user_info.get('sub') or user_info.get('id')
             user = User(
-                username=email.split('@')[0] + '_' + os.urandom(2).hex(),
+                username=email.split('@')[0],
                 email=email,
                 google_id=google_id,
                 profile_pic=user_info.get('picture', '')
             )
             db.session.add(user)
+            
+        try:
             db.session.commit()
-            logger.info(f"New user created via Google: {email}")
-        
-        session['user_id'] = user.id
-        return redirect(url_for('index'))
+            session['user_id'] = user.id
+            session.permanent = True
+            logger.info(f"User {email} successfully logged in via Google.")
+            return redirect(url_for('index', user_id=user.id))
+        except Exception as db_err:
+            db.session.rollback()
+            logger.error(f"Database error during Google login: {db_err}")
+            return f"Database Sync Error: {str(db_err)}", 500
+            
     except Exception as e:
         logger.error(f"Error in OAuth callback: {str(e)}")
         import traceback
