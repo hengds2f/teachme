@@ -355,7 +355,41 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Confirmation for reset
+    // Handle Curriculum Deletion
+    document.querySelectorAll('.delete-curriculum-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const currId = btn.dataset.id;
+            const subjectName = btn.dataset.subject;
+            
+            if (confirm(`Are you sure you want to permanently delete "${subjectName}"? All progress and notes for this subject will be lost.`)) {
+                try {
+                    const response = await fetch(`/api/curriculum/delete/${currId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    
+                    const data = await response.json();
+                    if (data.status === 'success') {
+                        // If we are currently ON the dashboard of the deleted curriculum, redirect to home
+                        const activeId = new URLSearchParams(window.location.search).get('curriculum_id');
+                        if (activeId === currId || (!activeId && btn.closest('.library-item-wrapper').querySelector('.active'))) {
+                            window.location.href = '/?new=1';
+                        } else {
+                            window.location.reload();
+                        }
+                    } else {
+                        alert(`Error: ${data.message}`);
+                    }
+                } catch (err) {
+                    console.error('Deletion error:', err);
+                    alert('Failed to delete curriculum.');
+                }
+            }
+        });
+    });
+
+    // Confirmation for reset (old legacy check, keep but ensure it doesn't conflict)
     document.querySelectorAll('a[href^="/reset"]').forEach(link => {
         link.addEventListener('click', (e) => {
             if (confirm('This will clear your current curriculum and progress. Are you sure?')) {

@@ -502,6 +502,32 @@ def debug_models():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/curriculum/delete/<int:curr_id>', methods=['POST'])
+def delete_curriculum(curr_id):
+    if 'user_id' not in session:
+        return jsonify({"status": "error", "message": "Login required"}), 401
+        
+    user_id = session['user_id']
+    curriculum = Curriculum.query.filter_by(id=curr_id, user_id=user_id).first()
+    
+    if not curriculum:
+        return jsonify({"status": "error", "message": "Curriculum not found or access denied"}), 404
+        
+    try:
+        # 1. Delete associated TopicProgress for this curriculum
+        TopicProgress.query.filter_by(curriculum_id=curr_id).delete()
+        
+        # 2. Delete the curriculum itself
+        db.session.delete(curriculum)
+        db.session.commit()
+        
+        logger.info(f"User {user_id} deleted curriculum {curr_id}")
+        return jsonify({"status": "success", "message": "Curriculum deleted"})
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error deleting curriculum: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 @app.route('/api/topic/complete', methods=['POST'])
 def complete_topic():
     if 'user_id' not in session:
