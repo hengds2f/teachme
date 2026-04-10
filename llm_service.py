@@ -104,14 +104,44 @@ def generate_curriculum(subject, level, goal, user_context=""):
         t_out = response.text.strip()
         
         # Robust Bracket Search Recovery
+        data = None
         try:
-            return json.loads(t_out)
+            data = json.loads(t_out)
         except json.JSONDecodeError:
             start = t_out.find('[')
             end = t_out.rfind(']')
             if start != -1 and end != -1:
-                return json.loads(t_out[start:end+1])
-            raise
+                try:
+                    data = json.loads(t_out[start:end+1])
+                except:
+                    raise
+            else:
+                raise
+
+        # DATA NORMALIZATION LAYER (Especially for Attempt 3 - Schema-less)
+        if isinstance(data, list):
+            for i, topic in enumerate(data):
+                if not isinstance(topic, dict): continue
+                
+                # Normalize 'id'
+                if 'id' not in topic:
+                    topic['id'] = str(topic.get('ID') or topic.get('topic_id') or topic.get('no') or str(i+1).zfill(2))
+                
+                # Normalize 'tier' (Strictly mapped to dashboard sections)
+                if 'tier' not in topic:
+                    raw_tier = str(topic.get('section') or topic.get('Section') or topic.get('level') or 'Foundations')
+                    # Smart mapping to allowed enums
+                    if 'found' in raw_tier.lower(): topic['tier'] = 'Foundations'
+                    elif 'inter' in raw_tier.lower(): topic['tier'] = 'Intermediate'
+                    elif 'adv' in raw_tier.lower(): topic['tier'] = 'Advanced'
+                    elif 'use' in raw_tier.lower() or 'guide' in raw_tier.lower(): topic['tier'] = 'Use Case Guides'
+                    else: topic['tier'] = 'Foundations'
+                
+                # Ensure 'title' and 'description' exist
+                if 'title' not in topic: topic['title'] = topic.get('name') or topic.get('Topic') or f"Topic {topic['id']}"
+                if 'description' not in topic: topic['description'] = topic.get('overview') or topic.get('summary') or f"Academic overview of {topic['title']}."
+                
+        return data
 
     try:
         # ATTEMPT 1: Strict Schema + Deterministic (Accuracy)

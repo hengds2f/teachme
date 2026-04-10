@@ -269,11 +269,12 @@ def handle_setup():
     db.session.commit()
     
     # Initialize topic progress
-    for topic in topics:
+    for i, topic in enumerate(topics):
+        topic_id = str(topic.get('id') or str(i+1).zfill(2))
         tp = TopicProgress(
             user_id=user.id,
             curriculum_id=curriculum.id,
-            topic_id_str=topic['id']
+            topic_id_str=topic_id
         )
         db.session.add(tp)
     
