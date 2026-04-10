@@ -28,7 +28,7 @@ def generate_curriculum(subject, level, goal, user_context=""):
     logger.info(f"Initiating live AI curriculum generation for: {subject}")
     genai.configure(api_key=api_key)
         
-    prompt = f"""
+    prompt = rf"""
     You are a Distinguished University Professor and Senior Academic Researcher. Your tone is formal, rigorous, and highly technical. 
     Use complex academic terminology. Address the user as a fellow scholar.
     
@@ -172,7 +172,7 @@ def generate_topic_chunk(subject, topic_title, chunk_type, current_context=""):
         Format as a bulleted academic summary.
         """
 
-    prompt = f"""
+    prompt = rf"""
     You are a Distinguished University Professor and Senior Academic Researcher teaching the subject "{subject}".
     The current topic is: "{topic_title}".
     We are generating a specific type of educational module: [{chunk_type.upper()}].
