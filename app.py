@@ -18,13 +18,16 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
-app.config['SECRET_KEY'] = 'teachme_secret_key_123'
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'teachme_secret_key_123')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///teachme.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['PREFERRED_URL_SCHEME'] = 'https'
+
+# Ensure Authlib/Requests trusts the HTTPS proxy
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+os.environ['AUTHLIB_INSECURE_TRANSPORT'] = 'true'
 
 db.init_app(app)
 
