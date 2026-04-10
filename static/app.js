@@ -1,4 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
+    
+    // Global Math Renderer
+    function renderMath() {
+        if (typeof renderMathInElement === 'function') {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\(", right: "\\)", display: false},
+                    {left: "\\[", right: "\\]", display: true}
+                ],
+                throwOnError : false
+            });
+        }
+    }
 
     // 0. Auto-Recovery Logic (Session Restoration)
     const urlParams = new URLSearchParams(window.location.search);
@@ -28,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(res => res.json())
             .then(syncData => {
                 if (syncData.status === 'success') {
+                    renderMath();
                     window.location.href = '/?user_id=' + syncData.user_id;
                 }
             })
@@ -212,6 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (data.type === 'concept' || data.type === 'example') {
                             checkInterleaving();
                         }
+                        renderMath();
                     }
                 } catch (err) {
                     console.error('Error generating chunk:', err);
@@ -324,6 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                     chunksArea.appendChild(newChunkBox);
                     newChunkBox.scrollIntoView({ behavior: 'smooth' });
+                    renderMath();
                 }
 
             } catch(e) {
@@ -361,6 +379,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    renderMath();
 });
 
 /* New Styles for Roadmap & Details */

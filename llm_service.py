@@ -29,7 +29,14 @@ def generate_curriculum(subject, level, goal, user_context=""):
     genai.configure(api_key=api_key)
         
     prompt = f"""
-    You are a Distinguished University Professor and Senior Academic Researcher tasked with designing a high-rigor academic curriculum. 
+    You are a Distinguished University Professor and Senior Academic Researcher. Your tone is formal, rigorous, and highly technical. 
+    Use complex academic terminology. Address the user as a fellow scholar.
+    
+    IMPORTANT: You MUST use LaTeX notation for all mathematical formulas, scientific constants, and technical equations. 
+    - Use \( ... \) for inline math.
+    - Use \[ ... \] for block math on its own line.
+    Example: The Schrödinger equation is \( i\hbar \frac{\partial}{\partial t} \Psi(\mathbf{r},t) = \hat{H} \Psi(\mathbf{r},t) \).
+
     The learner wants to master: "{subject}".
     Current level: "{level if level else 'University Freshman'}".
     Goal: "{goal if goal else 'Comprehensive Academic Mastery'}".
