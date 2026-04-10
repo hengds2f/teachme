@@ -83,6 +83,14 @@
             {% endfor %}
         </div>
     </div>
+    {% set ns = namespace(found_unassigned=false) %}
+    {% for topic in topics %}
+        {% if topic.tier not in tiers %}
+            {% set ns.found_unassigned = true %}
+        {% endif %}
+    {% endfor %}
+
+    {% if ns.found_unassigned %}
     <div class="tier-section">
         <h2 class="tier-title">General research & unassigned</h2>
         <div class="topics-grid">
@@ -103,6 +111,7 @@
             {% endfor %}
         </div>
     </div>
+    {% endif %}
     {% endfor %}
 </div>
 
