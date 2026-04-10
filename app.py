@@ -108,25 +108,40 @@ def auth_diag():
 
 @app.route('/login/callback')
 def authorize():
-    token = google.authorize_access_token()
-    resp = google.get('userinfo')
-    user_info = resp.json()
-    
-    # Check if user exists
-    user = User.query.filter_by(email=user_info['email']).first()
-    if not user:
-        # Create new user
-        user = User(
-            username=user_info['email'].split('@')[0] + '_' + os.urandom(2).hex(),
-            email=user_info['email'],
-            google_id=user_info['id'],
-            profile_pic=user_info.get('picture', '')
-        )
-        db.session.add(user)
-        db.session.commit()
-    
-    session['user_id'] = user.id
-    return redirect(url_for('index'))
+    try:
+        token = google.authorize_access_token()
+        resp = google.get('userinfo')
+        user_info = resp.json()
+        
+        email = user_info.get('email')
+        if not email:
+            logger.error("OAuth failed: No email returned in user_info")
+            return "Authentication failed: No email provided by Google.", 400
+            
+        # Check if user exists
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            # Google OIDC usually uses 'sub' for the unique identifier
+            google_id = user_info.get('sub') or user_info.get('id')
+            
+            # Create new user
+            user = User(
+                username=email.split('@')[0] + '_' + os.urandom(2).hex(),
+                email=email,
+                google_id=google_id,
+                profile_pic=user_info.get('picture', '')
+            )
+            db.session.add(user)
+            db.session.commit()
+            logger.info(f"New user created via Google: {email}")
+        
+        session['user_id'] = user.id
+        return redirect(url_for('index'))
+    except Exception as e:
+        logger.error(f"Error in OAuth callback: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
+        return f"Internal Server Error during Authentication: {str(e)}", 500
 
 @app.route('/logout')
 def logout():
