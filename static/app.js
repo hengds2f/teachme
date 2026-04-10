@@ -146,7 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             roadmapSteps.forEach(step => {
                 const type = step.id.replace('step-', '');
-                if (loadedTypes.includes(type) || (type === 'concept' && loadedTypes.includes('use case'))) {
+                const isLoaded = loadedTypes.some(lt => lt.includes(type) || (type === 'concept' && lt.includes('use case')));
+                if (isLoaded) {
                     step.classList.add('active');
                 }
             });
