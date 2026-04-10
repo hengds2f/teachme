@@ -145,8 +145,8 @@ def generate_topic_chunk(subject, topic_title, chunk_type, current_context=""):
         """
     elif chunk_type == "check":
         behavior_instructions = """
-        Ask a high-level comprehension question targeting critical understanding.
-        Use formal language and academic phrasing.
+        ACTIVATE RETRIEVAL PRACTICE: Ask a sophisticated, technical comprehension question based strictly on the axioms and frameworks covered in the preceding 1-2 modules.
+        The goal is immediate active recall. Use formal academic phrasing.
         """
     elif chunk_type == "takeaways":
         behavior_instructions = """

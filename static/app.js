@@ -187,8 +187,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (data.content_html) {
                         const newChunkBox = document.createElement('div');
                         newChunkBox.className = `chunk-box chunk-${data.type}`;
+                        const labelText = data.type === 'check' ? 'RETRIEVAL PRACTICE' : data.type.toUpperCase();
                         newChunkBox.innerHTML = `
-                            <div class="chunk-label">${data.type.toUpperCase()}</div>
+                            <div class="chunk-label">${labelText}</div>
                             <div class="chunk-content">${data.content_html}</div>
                         `;
                         chunksArea.appendChild(newChunkBox);
@@ -197,6 +198,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Update roadmap
                         const step = document.getElementById(`step-${data.type}`);
                         if (step) step.classList.add('active');
+
+                        // AUTOMATED RETRIEVAL INTERLEAVING
+                        if (data.type === 'concept' || data.type === 'example') {
+                            checkInterleaving();
+                        }
                     }
                 } catch (err) {
                     console.error('Error generating chunk:', err);
@@ -207,6 +213,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         });
+
+        function checkInterleaving() {
+            const chunks = Array.from(chunksArea.querySelectorAll('.chunk-box'));
+            let informationalCount = 0;
+            
+            // Look at the sequence of chunks from the end
+            for (let i = chunks.length - 1; i >= 0; i--) {
+                const typeLabel = chunks[i].querySelector('.chunk-label').innerText.toLowerCase();
+                if (typeLabel.includes('practice') || typeLabel.includes('check')) {
+                    break; // Met a check already
+                }
+                if (typeLabel.includes('concept') || typeLabel.includes('example') || typeLabel.includes('use case')) {
+                    informationalCount++;
+                }
+            }
+
+            if (informationalCount >= 2) {
+                console.log("Pedagogical Cluster detected. Injecting Retrieval Practice...");
+                const checkBtn = document.querySelector('.dynamic-btn[data-type="check"]');
+                if (checkBtn) {
+                    // Update label slightly for transparency
+                    const originalText = checkBtn.innerText;
+                    checkBtn.innerText = "Interleaving Check...";
+                    setTimeout(() => {
+                        checkBtn.click();
+                        checkBtn.innerText = originalText;
+                    }, 1000);
+                }
+            }
+        }
 
         // Mark complete button
         const markCompleteBtn = document.getElementById('markCompleteBtn');
