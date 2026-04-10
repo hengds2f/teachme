@@ -17,4 +17,4 @@ ENV PYTHONUNBUFFERED=1
 EXPOSE 7860
 
 # Run the gunicorn server with our app
-CMD ["gunicorn", "-w", "1", "-b", "0.0.0.0:7860", "app:app"]
+CMD ["gunicorn", "-w", "1", "--timeout", "120", "-b", "0.0.0.0:7860", "app:app"]

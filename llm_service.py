@@ -57,6 +57,8 @@ def generate_curriculum(subject, level, goal, user_context=""):
     
     logger.info(f"Initiating live AI curriculum generation for: {subject}")
     genai.configure(api_key=api_key)
+    # Initialize model once to reuse context and reduce latency
+    model_obj = genai.GenerativeModel(MODEL_NAME)
         
     prompt = f"""
     {PROFESSOR_PERSONA}
@@ -84,8 +86,7 @@ def generate_curriculum(subject, level, goal, user_context=""):
     ]
 
     # Robust Curriculum Generation Helper
-    def _attempt_generation(p, schema=None, temp=0.0):
-        model = genai.GenerativeModel(MODEL_NAME)
+    def _attempt_generation(p, model, schema=None, temp=0.0):
         config = {
             "response_mime_type": "application/json",
             "temperature": temp,
@@ -114,18 +115,18 @@ def generate_curriculum(subject, level, goal, user_context=""):
 
     try:
         # ATTEMPT 1: Strict Schema + Deterministic (Accuracy)
-        return _attempt_generation(prompt, CURRICULUM_SCHEMA, temp=0.0)
+        return _attempt_generation(prompt, model_obj, CURRICULUM_SCHEMA, temp=0.0)
     except Exception as e:
         logger.warning(f"Attempt 1 failed for {subject}: {e}. Trying Relaxed Schema...")
         try:
             # ATTEMPT 2: Strict Schema + More Creativity (Fluidity)
-            return _attempt_generation(prompt, CURRICULUM_SCHEMA, temp=0.5)
+            return _attempt_generation(prompt, model_obj, CURRICULUM_SCHEMA, temp=0.5)
         except Exception as e2:
             logger.warning(f"Attempt 2 failed for {subject}: {e2}. Final Fallback: Schema-less Generation...")
             try:
-                # ATTEMPT 3: NO SCHEMA. Just free-talk JSON to avoid schema conflicts.
+                # ATTEMPT 3: NO SCHEMA.
                 p_fallback = prompt + "\n\nCRITICAL: Return ONLY a raw JSON array. Do not use conversational text."
-                return _attempt_generation(p_fallback, schema=None, temp=0.7)
+                return _attempt_generation(p_fallback, model_obj, schema=None, temp=0.7)
             except Exception as e3:
                 err_str = str(e3)
                 if "429" in err_str and "quota" in err_str.lower():
