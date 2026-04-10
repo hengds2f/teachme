@@ -36,36 +36,47 @@ def generate_curriculum(subject, level, goal, user_context=""):
     User Background Context: "{user_context}"
 
     Please design a progressive, formal academic syllabus strictly structured into four tiers, totaling exactly 17 topics:
-    - Tier 1: Foundations (Topics 01-05) - Core concepts, no prerequisites, build the mental model.
-    - Tier 2: Intermediate (Topics 06-09) - Practical application, patterns, real-world integration.
-    - Tier 3: Advanced (Topics 10-11) - Complex patterns, optimisation, architectural trade-offs.
-    - Tier 4: Use Case Guides (Topics 12-17) - Scenario-based walkthroughs tied to real problems.
+    - Tier 1: Foundations (Topics 01-05)
+    - Tier 2: Intermediate (Topics 06-09)
+    - Tier 3: Advanced (Topics 10-11)
+    - Tier 4: Use Case Guides (Topics 12-17)
 
     Respond ONLY in valid JSON format. The JSON should be a list of objects with the following keys:
     - "id": a string from "01" to "17"
     - "title": technical academic topic name
     - "tier": the tier name (Foundations, Intermediate, Advanced, Use Case Guides)
-    - "description": a highly detailed academic overview of the module context (at least 3-4 sentences), including the intended learning outcomes and theoretical intersections.
+    - "description": a concise academic overview of the module context (2 sentences).
 
-    Do not use markdown blocks like ```json ... ```, just pure JSON output. Ensure the tone is strictly formal and academic.
+    Ensure NO trailing commas and strictly valid JSON syntax. No markdown wrappers.
     """
     
     try:
         model = genai.GenerativeModel(MODEL_NAME)
-        # Use generation_config for strict JSON output if supported
+        # Use generation_config for strict JSON output and higher token limit
         response = model.generate_content(
             prompt,
-            generation_config={"response_mime_type": "application/json"}
+            generation_config={
+                "response_mime_type": "application/json",
+                "temperature": 0.2,
+                "max_output_tokens": 4096
+            }
         )
         
         text_output = response.text.strip()
-        # Fallback cleaning if some models still wrap in markdown
-        if "```json" in text_output:
-            text_output = text_output.split("```json")[1].split("```")[0].strip()
-        elif "```" in text_output:
-            text_output = text_output.split("```")[1].split("```")[0].strip()
-            
-        data = json.loads(text_output)
+        
+        # Robust JSON extraction
+        try:
+            # Try parsing directly first
+            data = json.loads(text_output)
+        except json.JSONDecodeError:
+            # Fallback cleaning: find the first '[' and last ']'
+            start = text_output.find('[')
+            end = text_output.rfind(']')
+            if start != -1 and end != -1:
+                text_output = text_output[start:end+1]
+                data = json.loads(text_output)
+            else:
+                raise
         return data
     except Exception as e:
         err_str = str(e)
