@@ -58,6 +58,11 @@ def index():
         session.pop('user_id', None)
         return render_template('setup.html')
         
+    # FORCE NEW SUBJECT VIEW if ?new=1 is present
+    force_new = request.args.get('new') == '1'
+    if force_new:
+        return render_template('setup.html', user=user)
+        
     # Get all subjects for this user to allow "Resume"
     curriculums = Curriculum.query.filter_by(user_id=user.id).order_by(Curriculum.created_at.desc()).all()
     
@@ -369,8 +374,8 @@ def api_reexplain():
 
 @app.route('/reset')
 def reset_view():
-    session.pop('user_id', None)
-    return redirect(url_for('index'))
+    # JUST REDIRECT to the setup page with the ?new=1 flag
+    return redirect(url_for('index', new='1'))
 
 @app.route('/api/debug/env')
 def debug_env():
