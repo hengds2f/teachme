@@ -13,13 +13,17 @@
 
 <div class="curriculum-grid-container">
     {% set tiers = ['Theoretical Foundations', 'Analytical Methodologies', 'Advanced Synthesis', 'Empirical Applications & Research'] %}
-    
     {% for tier in tiers %}
     <div class="tier-section">
         <h2 class="tier-title">{{ tier }}</h2>
         <div class="topics-grid">
             {% for topic in topics %}
-                {% if topic.tier == tier %}
+                {# Flexibly match tier names - looks for keywords inside the tier string #}
+                {% if (tier == 'Theoretical Foundations' and 'Foundations' in topic.tier) or 
+                      (tier == 'Analytical Methodologies' and ('Methodologies' in topic.tier or 'Intermediate' in topic.tier)) or
+                      (tier == 'Advanced Synthesis' and ('Synthesis' in topic.tier or 'Advanced' in topic.tier)) or
+                      (tier == 'Empirical Applications & Research' and ('Empirical' in topic.tier or 'Research' in topic.tier or 'Use Case' in topic.tier)) or
+                      (topic.tier == tier) %}
                     {% set prog = progress_map[topic.id] %}
                     <a href="/topic/{{ topic.id }}?user_id={{ session.get('user_id') }}" class="topic-card {% if prog.status == 'Completed' %}completed{% elif prog.status == 'In Progress' %}in-progress{% endif %}">
                         <div class="topic-header">

@@ -319,26 +319,11 @@ def debug_models():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/debug/curriculum')
-def debug_curriculum():
-    if 'user_id' not in session:
-        return jsonify({"error": "No user in session"}), 401
-    user = User.query.get(session['user_id'])
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-    curriculum = Curriculum.query.filter_by(user_id=user.id).order_by(Curriculum.id.desc()).first()
-    if not curriculum:
-        return jsonify({"error": "No curriculum found"}), 404
-    
-    return jsonify({
-        "subject": curriculum.subject,
-        "level": curriculum.level,
-        "raw_topics": json.loads(curriculum.topics_json)
-    })
+@app.route('/api/topic/complete', methods=['POST'])
 def complete_topic():
     if 'user_id' not in session:
         return jsonify({"error": "Unauthorized"}), 401
-        
+    
     data = request.json
     topic_id_str = data.get("topic_id")
     
