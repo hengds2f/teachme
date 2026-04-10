@@ -24,6 +24,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///teachme.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 app.config['SESSION_COOKIE_SECURE'] = True
+app.config['PREFERRED_URL_SCHEME'] = 'https'
 
 db.init_app(app)
 
@@ -32,14 +33,8 @@ google = oauth.register(
     name='google',
     client_id=os.getenv('GOOGLE_CLIENT_ID'),
     client_secret=os.getenv('GOOGLE_CLIENT_SECRET'),
-    access_token_url='https://accounts.google.com/o/oauth2/token',
-    access_token_params=None,
-    authorize_url='https://accounts.google.com/o/oauth2/auth',
-    authorize_params=None,
-    api_base_url='https://www.googleapis.com/oauth2/v1/',
-    userinfo_endpoint='https://openidconnect.googleapis.com/v1/userinfo',
-    client_kwargs={'scope': 'openid email profile'},
-    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration'
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={'scope': 'openid email profile'}
 )
 
 with app.app_context():
@@ -93,7 +88,23 @@ def index():
 @app.route('/login')
 def login():
     redirect_uri = url_for('authorize', _external=True)
-    return google.authorize_redirect(redirect_uri)
+    # Force the prompt to ensure no stale 403 cookies/sessions are being used
+    return google.authorize_redirect(redirect_uri, prompt='select_account')
+
+@app.route('/api/auth/diag')
+def auth_diag():
+    client_id = os.getenv('GOOGLE_CLIENT_ID', 'MISSING')
+    redirect_uri = url_for('authorize', _external=True)
+    return jsonify({
+        "status": "Diagnostic Mode",
+        "client_id_found": client_id != 'MISSING',
+        "client_id_prefix": client_id[:5] if client_id else "N/A",
+        "generated_redirect_uri": redirect_uri,
+        "scheme": request.scheme,
+        "is_secure": request.is_secure,
+        "headers": dict(request.headers),
+        "note": "Ensure the 'generated_redirect_uri' matches EXACTLY what is in your Google Cloud Console."
+    })
 
 @app.route('/login/callback')
 def authorize():
