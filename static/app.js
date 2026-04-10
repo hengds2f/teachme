@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const cards = document.querySelectorAll('.topic-card');
         const completed = document.querySelectorAll('.topic-card.completed').length;
         const total = cards.length;
-        const percent = Math.round((completed / total) * 100);
+        const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
 
         const progressFill = document.getElementById('progress-fill');
         const progressPercent = document.getElementById('progress-percent');

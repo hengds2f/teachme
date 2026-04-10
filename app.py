@@ -113,7 +113,16 @@ def index():
     if not curriculum:
         return render_template('setup.html')
         
-    topics = json.loads(curriculum.topics_json)
+    # NEW: Self-Healing Check for broken/empty curriculum data
+    topics = []
+    try:
+        topics = json.loads(curriculum.topics_json)
+        if not topics or len(topics) == 0:
+            raise ValueError("Curriculum contains no topics.")
+    except Exception as e:
+        logger.warning(f"Detected broken curriculum for user {user.id}. Redirecting to setup. Error: {e}")
+        return redirect(url_for('index', new=1))
+
     progress_records = TopicProgress.query.filter_by(curriculum_id=curriculum.id).all()
     progress_map = {p.topic_id_str: p for p in progress_records}
     
@@ -232,6 +241,10 @@ def handle_setup():
     context = f"Background: {background}, Style: {style}"
     topics = generate_curriculum(subject, level, goal, context)
     
+    if not topics or len(topics) == 0:
+        logger.error("Curriculum generation returned no topics.")
+        return jsonify({"status": "error", "message": "Failed to generate syllabus. Please check your API key and try again."}), 500
+
     curriculum = Curriculum(
         user_id=user.id,
         subject=subject,

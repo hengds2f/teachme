@@ -27,6 +27,21 @@ def get_api_key():
         return None
     return raw_key
 
+# Define the strict schema for curriculum generation
+CURRICULUM_SCHEMA = {
+    "type": "ARRAY",
+    "items": {
+        "type": "OBJECT",
+        "properties": {
+            "id": {"type": "STRING", "description": "ID from 01 to 17"},
+            "title": {"type": "STRING", "description": "Academic topic name"},
+            "tier": {"type": "STRING", "description": "The tier name"},
+            "description": {"type": "STRING", "description": "1-sentence academic overview"}
+        },
+        "required": ["id", "title", "tier", "description"]
+    }
+}
+
 def generate_curriculum(subject, level, goal, user_context=""):
     """
     Generates a 17-topic structured curriculum organized into 4 tiers.
@@ -56,21 +71,6 @@ def generate_curriculum(subject, level, goal, user_context=""):
     Return a list of 17 objects. Each description must be exactly 1 academic sentence.
     """
     
-    # Define the strict schema for curriculum generation
-    curriculum_schema = {
-        "type": "ARRAY",
-        "items": {
-            "type": "OBJECT",
-            "properties": {
-                "id": {"type": "STRING", "description": "ID from 01 to 17"},
-                "title": {"type": "STRING", "description": "Academic topic name"},
-                "tier": {"type": "STRING", "description": "The tier name"},
-                "description": {"type": "STRING", "description": "1-sentence academic overview"}
-            },
-            "required": ["id", "title", "tier", "description"]
-        }
-    }
-
     # Robust Curriculum Generation Helper
     def _attempt_generation(p, schema, temp=0.0):
         model = genai.GenerativeModel(MODEL_NAME)
@@ -83,34 +83,32 @@ def generate_curriculum(subject, level, goal, user_context=""):
                 "max_output_tokens": 4096
             }
         )
-        
-        text_output = response.text.strip()
-        
+        t_out = response.text.strip()
         # Robust Bracket Search Recovery
         try:
-            return json.loads(text_output)
+            return json.loads(t_out)
         except json.JSONDecodeError:
-            start = text_output.find('[')
-            end = text_output.rfind(']')
+            start = t_out.find('[')
+            end = t_out.rfind(']')
             if start != -1 and end != -1:
-                return json.loads(text_output[start:end+1])
+                return json.loads(t_out[start:end+1])
             raise
 
     try:
         # First attempt with full schema
-        return _attempt_generation(prompt, curriculum_schema, temp=0.0)
+        return _attempt_generation(prompt, CURRICULUM_SCHEMA, temp=0.0)
     except Exception as e:
         logger.warning(f"First curriculum generation attempt failed: {e}. Retrying with relaxed constraints...")
         try:
             # Second attempt: slightly higher temperature or just a retry
-            return _attempt_generation(prompt, curriculum_schema, temp=0.2)
+            return _attempt_generation(prompt, CURRICULUM_SCHEMA, temp=0.2)
         except Exception as e2:
             err_str = str(e2)
             if "429" in err_str and "quota" in err_str.lower():
                 logger.warning("Daily AI Quota reached. Switching to Pro Demo Mode.")
                 return generate_demo_curriculum(subject)
             
-            logger.error(f"Critical error in curriculum generation. Output start: {text_output[:200] if 'text_output' in locals() else 'None'}")
+            logger.error(f"Critical error in curriculum generation for {subject}: {err_str}")
             return generate_mock_curriculum(subject, f"Final fallback error: {err_str}")
 
 def generate_demo_curriculum(subject):
