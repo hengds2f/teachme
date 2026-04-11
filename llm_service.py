@@ -326,6 +326,8 @@ def generate_quiz_json(subject, topic_title, context):
     Generate a 5-question Multiple Choice Quiz (MCQ) to assess deep theoretical and practical understanding of this specific topic.
     Questions must be challenging, academic, and require synthesis of the concepts taught.
     For each question, provide 4 distinct options, the index of the correct answer, and a rigorous academic explanation.
+    
+    CRITICAL: Return ONLY a raw JSON array of 5 objects. Do not wrap it in a root object or include conversational text.
     """
 
     try:
@@ -340,7 +342,8 @@ def generate_quiz_json(subject, topic_title, context):
         return response.text.strip()
     except Exception as e:
         logger.error(f"Quiz generation failed: {e}")
-        return json.dumps({"error": str(e)})
+        # Return a structured error that the frontend can parse and display
+        return json.dumps({"error": f"The academic engine encountered a service interruption: {str(e)}"})
 
 
 def re_explain_concept(concept_text, learner_feedback, user_context=""):

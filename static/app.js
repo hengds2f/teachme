@@ -446,11 +446,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const cleanJson = (str) => {
         try {
-            // Remove markdown code blocks if present
-            let cleaned = str.replace(/```json\s?/, '').replace(/\s?```/, '').trim();
-            // Find the actual JSON array boundaries
-            const start = cleaned.indexOf('[');
-            const end = cleaned.lastIndexOf(']');
+            // Remove markdown code blocks and conversational fluff
+            let cleaned = str.replace(/```json\s?/g, '').replace(/```/g, '').trim();
+            
+            // Extract the first JSON structure encountered (array or object)
+            const firstBracket = cleaned.indexOf('[');
+            const firstBrace = cleaned.indexOf('{');
+            
+            let start = -1;
+            let end = -1;
+            
+            if (firstBracket !== -1 && (firstBrace === -1 || firstBracket < firstBrace)) {
+                start = firstBracket;
+                end = cleaned.lastIndexOf(']');
+            } else if (firstBrace !== -1) {
+                start = firstBrace;
+                end = cleaned.lastIndexOf('}');
+            }
+
             if (start !== -1 && end !== -1) {
                 cleaned = cleaned.substring(start, end + 1);
             }
@@ -462,15 +475,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Quiz Rendering Engine
     function renderQuizChunk(quizData, container) {
-        if (!Array.isArray(quizData)) {
-            container.innerHTML = `<p style="color: #ef4444;">Invalid quiz format received. Expected an array of questions.</p>`;
+        // 1. Handle explicit error objects from backend
+        if (quizData && quizData.error) {
+            container.innerHTML = `
+                <div style="padding: 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; border-radius: 8px;">
+                    <p style="color: #ef4444; font-weight: 600; margin-bottom: 0.5rem;">AI Generation Insight</p>
+                    <p style="color: #f87171; font-size: 0.9rem;">${quizData.error}</p>
+                </div>
+            `;
+            return;
+        }
+
+        // 2. Handle cases where the array is wrapped in an object (e.g. { "questions": [...] })
+        let questions = quizData;
+        if (!Array.isArray(questions) && questions && typeof questions === 'object') {
+            const possibleKey = Object.keys(questions).find(k => Array.isArray(questions[k]));
+            if (possibleKey) {
+                questions = questions[possibleKey];
+            }
+        }
+
+        if (!Array.isArray(questions)) {
+            container.innerHTML = `<p style="color: #ef4444;">Invalid quiz format received. The learning engine produced a non-standard response. Please refresh and try again.</p>`;
             return;
         }
         
         container.innerHTML = `<div class="quiz-container" id="quiz-${Date.now()}"></div>`;
         const quizInner = container.querySelector('.quiz-container');
 
-        quizData.forEach((q, idx) => {
+        questions.forEach((q, idx) => {
             const qCard = document.createElement('div');
             qCard.className = 'quiz-question-card';
             qCard.innerHTML = `
