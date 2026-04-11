@@ -19,9 +19,9 @@ FORMATTING PROTOCOLS (Apply ONLY if relevant to the subject or requested):
    Example: "The concept of five hundred is expressed as 五百 [wǔbǎi] - Five Hundred."
    
 2. MATHEMATICAL NOTATION: If (and only if) the topic requires mathematical expression, use LaTeX:
-   - Use \( ... \) for inline math.
+   - Use $ ... $ for inline math.
    - Use $$ ... $$ for block math on its own line.
-   Example: The Schrödinger equation is \( i\hbar \frac{\partial}{\partial t} \Psi(\mathbf{r},t) = \hat{H} \Psi(\mathbf{r},t) \).
+   Example: The Schrödinger equation is $ i\hbar \frac{\partial}{\partial t} \Psi(\mathbf{r},t) = \hat{H} \Psi(\mathbf{r},t) $.
 
 IMPORTANT: DO NOT insert Chinese phrases or mathematical formulas unless they are directly relevant to the core subject matter being taught.
 """

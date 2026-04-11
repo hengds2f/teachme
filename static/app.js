@@ -8,8 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     {left: "$$", right: "$$", display: true},
                     {left: "$", right: "$", display: false},
                     {left: "\\(", right: "\\)", display: false},
-                    {left: "\\[", right: "\\]", display: true},
-                    {left: "[", right: "]", display: true} // Fallback for raw square brackets
+                    {left: "\\[", right: "\\]", display: true}
                 ],
                 throwOnError : false
             });
