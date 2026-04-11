@@ -402,7 +402,12 @@ def generate_chunk():
     context = f"User Level: {curriculum.level}, Background: {user.background}, Style: {user.learning_style}"
     
     md_content = generate_topic_chunk(curriculum.subject, topic_meta['title'], chunk_type, context)
-    html_content = render_md(md_content)
+    
+    # Handle JSON chunks (like quiz) vs Markdown chunks
+    if chunk_type == "quiz":
+        html_content = md_content # Pass raw JSON string
+    else:
+        html_content = render_md(md_content)
     
     # Save the chunk
     chunks = json.loads(progress.content_chunks_json) if progress.content_chunks_json else []

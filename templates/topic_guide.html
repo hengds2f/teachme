@@ -31,6 +31,11 @@
         <div class="step-num">4</div>
         <div class="step-text">Key Takeaways</div>
     </div>
+    <div class="roadmap-line"></div>
+    <div class="roadmap-step" id="step-quiz" data-step="5">
+        <div class="step-num">5</div>
+        <div class="step-text">Assessment Quiz</div>
+    </div>
 </div>
 
 <div class="learning-container" id="learning-container" data-topic-id="{{ topic.id }}">
@@ -55,7 +60,8 @@
                 <button class="dynamic-btn" data-type="example">See Example</button>
                 <button class="dynamic-btn" data-type="exercise">Try Exercise</button>
                 <button class="dynamic-btn" data-type="check">Knowledge Check</button>
-                <button class="dynamic-btn" data-type="takeaways" style="background: var(--success)">Key Takeaways</button>
+                <button class="dynamic-btn" data-type="takeaways">Key Takeaways</button>
+                <button class="dynamic-btn" data-type="quiz" style="background: var(--accent)">Take Assessment Quiz</button>
             </div>
             <div class="complete-group">
                 <button class="complete-btn" id="markCompleteBtn">I've mastered this topic</button>

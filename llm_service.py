@@ -51,6 +51,25 @@ CURRICULUM_SCHEMA = {
     }
 }
 
+QUIZ_SCHEMA = {
+    "type": "ARRAY",
+    "items": {
+        "type": "OBJECT",
+        "properties": {
+            "question": {"type": "STRING", "description": "Sophisticated MCQ question"},
+            "options": {
+                "type": "ARRAY", 
+                "items": {"type": "STRING", "description": "Distractor or correct option"},
+                "minItems": 4,
+                "maxItems": 4
+            },
+            "answer_index": {"type": "INTEGER", "description": "Index (0-3) of the correct option"},
+            "explanation": {"type": "STRING", "description": "Academic explanation of why the answer is correct"}
+        },
+        "required": ["question", "options", "answer_index", "explanation"]
+    }
+}
+
 def generate_curriculum(subject, level, goal, user_context=""):
     """
     Generates a 17-topic structured curriculum organized into 4 tiers.
@@ -249,6 +268,9 @@ def generate_topic_chunk(subject, topic_title, chunk_type, current_context=""):
         Provide exactly 3-5 'Key Takeaways' that summarize the most critical technical and theoretical points of this entire topic. 
         Format as a bulleted academic summary.
         """
+    elif chunk_type == "quiz":
+        # Handled by a specialized generator for JSON output
+        return generate_quiz_json(subject, topic_title, current_context)
 
     prompt = f"""
     {PROFESSOR_PERSONA}
@@ -281,6 +303,44 @@ def generate_topic_chunk(subject, topic_title, chunk_type, current_context=""):
             return f"### Demo Content: {topic_title}\n\n*Note: The AI is currently at its daily limit. Enjoy this pre-designed learning material.* \n\n**Overview:** {topic_title} is a critical component of {subject}. In this section, we focus on the fundamental theories and practical implementations that define professional standards in this area."
         
         return f"Error: The learning engine hit a hitch ({err_str}). Please try again."
+
+
+def generate_quiz_json(subject, topic_title, context):
+    """
+    Generates a 5-question multiple choice quiz in structured JSON.
+    """
+    api_key = get_api_key()
+    if not api_key:
+        return json.dumps([{"question": "Mock Question?", "options": ["A", "B", "C", "D"], "answer_index": 0, "explanation": "Mock."}] * 5)
+    
+    genai.configure(api_key=api_key)
+    model_obj = genai.GenerativeModel(MODEL_NAME)
+
+    prompt = f"""
+    {PROFESSOR_PERSONA}
+    
+    Subject: {subject}
+    Topic: {topic_title}
+    Learner Context: {context}
+
+    Generate a 5-question Multiple Choice Quiz (MCQ) to assess deep theoretical and practical understanding of this specific topic.
+    Questions must be challenging, academic, and require synthesis of the concepts taught.
+    For each question, provide 4 distinct options, the index of the correct answer, and a rigorous academic explanation.
+    """
+
+    try:
+        response = model_obj.generate_content(
+            prompt,
+            generation_config={
+                "response_mime_type": "application/json",
+                "response_schema": QUIZ_SCHEMA,
+                "temperature": 0.5
+            }
+        )
+        return response.text.strip()
+    except Exception as e:
+        logger.error(f"Quiz generation failed: {e}")
+        return json.dumps({"error": str(e)})
 
 
 def re_explain_concept(concept_text, learner_feedback, user_context=""):

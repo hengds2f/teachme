@@ -172,10 +172,20 @@ document.addEventListener('DOMContentLoaded', () => {
             
             roadmapSteps.forEach(step => {
                 const type = step.id.replace('step-', '');
-                const isLoaded = loadedTypes.some(lt => lt.includes(type) || (type === 'concept' && lt.includes('use case')));
+                const isLoaded = loadedTypes.some(lt => lt.includes(type) || (type === 'concept' && lt.includes('use case')) || (type === 'quiz' && lt.includes('quiz')));
                 if (isLoaded) {
                     step.classList.add('active');
                 }
+            });
+
+            // Initialize existing quizzes
+            document.querySelectorAll('.chunk-quiz .chunk-content').forEach(container => {
+                if (container.querySelector('.quiz-container')) return; // Already init
+                const rawJson = container.innerText.trim();
+                try {
+                    const data = JSON.parse(rawJson);
+                    renderQuizChunk(data, container);
+                } catch(e) { console.error("Failed to parse existing quiz", e); }
             });
 
             // AUTO-TRIGGER first concept if empty
@@ -216,9 +226,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         const labelText = data.type === 'check' ? 'RETRIEVAL PRACTICE' : data.type.toUpperCase();
                         newChunkBox.innerHTML = `
                             <div class="chunk-label">${labelText}</div>
-                            <div class="chunk-content">${data.content_html}</div>
+                            <div class="chunk-content">${data.type === 'quiz' ? '' : data.content_html}</div>
                         `;
                         chunksArea.appendChild(newChunkBox);
+                        
+                        if (data.type === 'quiz') {
+                            const container = newChunkBox.querySelector('.chunk-content');
+                            try {
+                                const quizData = JSON.parse(data.content_html);
+                                renderQuizChunk(quizData, container);
+                            } catch(e) { console.error("Error parsing new quiz", e); }
+                        }
+
                         newChunkBox.scrollIntoView({ behavior: 'smooth' });
                         
                         // Update roadmap
@@ -416,6 +435,81 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     renderMath();
+
+    // Quiz Rendering Engine
+    function renderQuizChunk(quizData, container) {
+        container.innerHTML = `<div class="quiz-container" id="quiz-${Date.now()}"></div>`;
+        const quizInner = container.querySelector('.quiz-container');
+
+        quizData.forEach((q, idx) => {
+            const qCard = document.createElement('div');
+            qCard.className = 'quiz-question-card';
+            qCard.innerHTML = `
+                <span class="quiz-question-text">${idx + 1}. ${q.question}</span>
+                <div class="quiz-options">
+                    ${q.options.map((opt, oIdx) => `
+                        <div class="quiz-option" data-qidx="${idx}" data-oidx="${oIdx}">
+                            ${opt}
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="quiz-explanation" id="expl-${idx}"><strong>Academic Analysis:</strong> ${q.explanation}</div>
+            `;
+            quizInner.appendChild(qCard);
+        });
+
+        const submitBtn = document.createElement('button');
+        submitBtn.className = 'cta-button quiz-submit-btn';
+        submitBtn.innerText = 'Submit Assessment';
+        quizInner.appendChild(submitBtn);
+
+        // Option Selection
+        quizInner.addEventListener('click', (e) => {
+            const option = e.target.closest('.quiz-option');
+            if (option && !submitBtn.disabled) {
+                const qIdx = option.dataset.qidx;
+                quizInner.querySelectorAll(`.quiz-option[data-qidx="${qIdx}"]`).forEach(o => o.classList.remove('selected'));
+                option.classList.add('selected');
+            }
+        });
+
+        submitBtn.addEventListener('click', () => {
+            let score = 0;
+            const total = quizData.length;
+
+            quizData.forEach((q, idx) => {
+                const selected = quizInner.querySelector(`.quiz-option[data-qidx="${idx}"].selected`);
+                const selectedIdx = selected ? parseInt(selected.dataset.oidx) : -1;
+                
+                const options = quizInner.querySelectorAll(`.quiz-option[data-qidx="${idx}"]`);
+                options[q.answer_index].classList.add('correct');
+                
+                if (selectedIdx === q.answer_index) {
+                    score++;
+                } else if (selectedIdx !== -1) {
+                    options[selectedIdx].classList.add('incorrect');
+                }
+
+                quizInner.querySelector(`#expl-${idx}`).classList.add('show');
+            });
+
+            submitBtn.disabled = true;
+            submitBtn.style.display = 'none';
+
+            const summary = document.createElement('div');
+            summary.className = 'quiz-results-summary';
+            summary.innerHTML = `
+                <span class="quiz-score">${score} / ${total}</span>
+                <p>${score === total ? "Phenomenal! You have demonstrated absolute mastery of these conceptual axioms." : "Solid effort. Review the academic analysis for the questions missed to solidify your theoretical framework."}</p>
+            `;
+            quizInner.appendChild(summary);
+            summary.scrollIntoView({ behavior: 'smooth' });
+            
+            // Sync with roadmap
+            const step = document.getElementById('step-quiz');
+            if (step) step.classList.add('active');
+        });
+    }
 });
 
 /* New Styles for Roadmap & Details */
