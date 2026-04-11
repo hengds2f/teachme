@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+teachme.db
+instance/
+.pytest_cache/
+.vscode/
+.idea/
+.gemini/

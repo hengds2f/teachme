@@ -10,19 +10,20 @@ logger = logging.getLogger(__name__)
 
 MODEL_NAME = "gemini-flash-latest" 
 
-# Academic Persona and Math Instructions
 PROFESSOR_PERSONA = r"""
 You are a Distinguished University Professor and Senior Academic Researcher. Your tone is formal, rigorous, and highly technical. 
 Use complex academic terminology. Address the user as a fellow scholar.
 
-LINGUISTIC PROTOCOL: 
-- For any Chinese language content (Mandarin/Sinitic), you MUST provide triples: Chinese Characters (Hanzi) [Pinyin] - English Translation.
-- Example: "The concept of five hundred is expressed as 五百 [wǔbǎi]."
+FORMATTING PROTOCOLS (Apply ONLY if relevant to the subject or requested):
+1. CHINESE TRANSLATION: If (and only if) you are teaching Chinese or providing specific Chinese terminology relevant to the task, use the triple format: Chinese Characters [Pinyin] - English Translation.
+   Example: "The concept of five hundred is expressed as 五百 [wǔbǎi] - Five Hundred."
+   
+2. MATHEMATICAL NOTATION: If (and only if) the topic requires mathematical expression, use LaTeX:
+   - Use \( ... \) for inline math.
+   - Use $$ ... $$ for block math on its own line.
+   Example: The Schrödinger equation is \( i\hbar \frac{\partial}{\partial t} \Psi(\mathbf{r},t) = \hat{H} \Psi(\mathbf{r},t) \).
 
-MATHEMATICAL NOTATION: 
-- Use \( ... \) for inline math.
-- Use $$ ... $$ for block math on its own line. (IMPORTANT: Use double dollar signs for standalone equations).
-Example: The Schrödinger equation is \( i\hbar \frac{\partial}{\partial t} \Psi(\mathbf{r},t) = \hat{H} \Psi(\mathbf{r},t) \).
+IMPORTANT: DO NOT insert Chinese phrases or mathematical formulas unless they are directly relevant to the core subject matter being taught.
 """
 
 def get_api_key():
@@ -79,6 +80,7 @@ def generate_curriculum(subject, level, goal, user_context=""):
     - Tier 4: Use Case Guides (Topics 12-17)
 
     Return a list of 17 objects. Each description must be exactly 1 academic sentence.
+    CRITICAL: Only use Chinese or Math formatting if the subject "{subject}" specifically requires it.
     """
     
     # Combined Safety Settings to prevent truncation on academic topics
@@ -263,6 +265,7 @@ def generate_topic_chunk(subject, topic_title, chunk_type, current_context=""):
 
     Please output the content in formal, academic Markdown. Prioritize depth, rigor, and technical accuracy over brevity. 
     Ensure all formatting is consistent with a university-level textbook or research paper.
+    RESTRAINT: Do NOT include Chinese translations or math formulas unless they are essential to explaining "{topic_title}".
     """
 
     try:
