@@ -183,9 +183,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (container.querySelector('.quiz-container')) return; // Already init
                 const rawJson = container.innerText.trim();
                 try {
-                    const data = JSON.parse(rawJson);
+                    const cleaned = cleanJson(rawJson);
+                    const data = JSON.parse(cleaned);
                     renderQuizChunk(data, container);
-                } catch(e) { console.error("Failed to parse existing quiz", e); }
+                } catch(e) { 
+                    console.error("Failed to parse existing quiz", e);
+                    container.innerHTML = `<p style="color: #ef4444;">Error loading quiz data. Please try generating it again.</p>`;
+                }
             });
 
             // AUTO-TRIGGER first concept if empty
@@ -233,9 +237,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (data.type === 'quiz') {
                             const container = newChunkBox.querySelector('.chunk-content');
                             try {
-                                const quizData = JSON.parse(data.content_html);
+                                const cleaned = cleanJson(data.content_html);
+                                const quizData = JSON.parse(cleaned);
                                 renderQuizChunk(quizData, container);
-                            } catch(e) { console.error("Error parsing new quiz", e); }
+                            } catch(e) { 
+                                console.error("Error parsing new quiz", e); 
+                                container.innerHTML = `<p style="color: #ef4444;">Could not construct quiz: ${e.message}. Please try again.</p>`;
+                            }
                         }
 
                         newChunkBox.scrollIntoView({ behavior: 'smooth' });
@@ -436,8 +444,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderMath();
 
+    const cleanJson = (str) => {
+        try {
+            // Remove markdown code blocks if present
+            let cleaned = str.replace(/```json\s?/, '').replace(/\s?```/, '').trim();
+            // Find the actual JSON array boundaries
+            const start = cleaned.indexOf('[');
+            const end = cleaned.lastIndexOf(']');
+            if (start !== -1 && end !== -1) {
+                cleaned = cleaned.substring(start, end + 1);
+            }
+            return cleaned;
+        } catch (e) {
+            return str;
+        }
+    };
+
     // Quiz Rendering Engine
     function renderQuizChunk(quizData, container) {
+        if (!Array.isArray(quizData)) {
+            container.innerHTML = `<p style="color: #ef4444;">Invalid quiz format received. Expected an array of questions.</p>`;
+            return;
+        }
+        
         container.innerHTML = `<div class="quiz-container" id="quiz-${Date.now()}"></div>`;
         const quizInner = container.querySelector('.quiz-container');
 
