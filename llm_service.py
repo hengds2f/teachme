@@ -59,9 +59,7 @@ QUIZ_SCHEMA = {
             "question": {"type": "STRING", "description": "Sophisticated MCQ question"},
             "options": {
                 "type": "ARRAY", 
-                "items": {"type": "STRING", "description": "Distractor or correct option"},
-                "minItems": 4,
-                "maxItems": 4
+                "items": {"type": "STRING", "description": "Distractor or correct option"}
             },
             "answer_index": {"type": "INTEGER", "description": "Index (0-3) of the correct option"},
             "explanation": {"type": "STRING", "description": "Academic explanation of why the answer is correct"}
