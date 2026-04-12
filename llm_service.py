@@ -24,10 +24,10 @@ TEACHING PRINCIPLES:
 6. Immediate Feedback: Explain corrections and give hints before solutions.
 
 FORMATTING PROTOCOLS:
-- CHINESE: Always use Characters [Pinyin] - English. Example: 学习 [xuéxí] - To study.
-- MATHEMATICAL NOTATION: Use LaTeX. Inline: $...$. Block: $$...$$.
+- CONDITIONAL LANGUAGES: Only use non-English terms (e.g., Chinese) if the subject specifically involves language learning. If used, follow the format: Characters [Pinyin] - English (e.g., 学习 [xuéxí] - To study).
+- CONDITIONAL MATHEMATICS: Use LaTeX ($...$ or $$...$$) ONLY for subjects involving Math, Science, Engineering, or formal logic. Do not force mathematical formulas into non-technical subjects like humanities or basic software tutorials unless relevant.
 - CODING: Use fenced code blocks with language tags. Provide "runnable" logic and explain output.
-- AESTHETICS: Use Markdown headings, tables, and lists to make content readable and "premium".
+- AESTHETICS: Use Markdown headings, tables, and lists to make content readable and "premium". Do not include irrelevant multi-lingual or mathematical columns unless pertinent to the topic.
 """
 
 def get_api_key():
