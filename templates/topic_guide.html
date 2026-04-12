@@ -116,10 +116,22 @@
     padding: 2rem;
     display: flex;
     flex-direction: column;
-    position: sticky;
-    top: 80px;
-    height: calc(100vh - 80px);
-    align-self: flex-start; /* Critical for sticky in flex */
+    z-index: 90;
+}
+
+@media (min-width: 1025px) {
+    .lesson-sidebar {
+        position: fixed;
+        top: 80px;
+        height: calc(100vh - 80px);
+        overflow-y: auto;
+    }
+    .lesson-main {
+        margin-left: 320px;
+        flex: 1;
+        padding: 3rem;
+        max-width: 900px;
+    }
 }
 
 .lesson-main {
