@@ -118,6 +118,42 @@ document.addEventListener('DOMContentLoaded', () => {
             updateRoadmap(loadedChunks);
             renderMath();
             
+            // Roadmap Click Handling
+            roadmapItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const level = item.dataset.level;
+                    if (item.classList.contains('locked')) {
+                        console.log("Section is locked.");
+                        return;
+                    }
+
+                    // If already loaded, scroll to it
+                    const targetChunk = chunksArea.querySelector(`.chunk-${level}`);
+                    if (targetChunk) {
+                        targetChunk.scrollIntoView({ behavior: 'smooth' });
+                        return;
+                    }
+
+                    // Special case for 'practice' and 'mastery' groups
+                    if (level === 'practice' || level === 'mastery') {
+                        const firstInGroup = level === 'practice' ? 'examples' : 'checkpoints';
+                        const chunk = chunksArea.querySelector(`.chunk-${firstInGroup}`);
+                        if (chunk) {
+                            chunk.scrollIntoView({ behavior: 'smooth' });
+                        } else {
+                            // If not loaded but next in line, trigger continue
+                            nextBtn.click();
+                        }
+                        return;
+                    }
+
+                    // If it's the next logical item but not loaded, click Continue
+                    if (item.classList.contains('active') && !targetChunk) {
+                        nextBtn.click();
+                    }
+                });
+            });
+
             // Handle Start Button
             const startBtn = document.querySelector('.start-lesson-btn');
             if (startBtn) {
@@ -200,36 +236,47 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function updateRoadmap(loadedTypes) {
+            const lastLoaded = loadedTypes[loadedTypes.length - 1];
+            const currentIndex = MASTERY_SEQUENCE.indexOf(lastLoaded);
+            
             roadmapItems.forEach(item => {
                 const level = item.dataset.level;
-                
-                // Detailed mapping logic
+                item.classList.remove('active', 'locked', 'completed');
+
+                // Determine logical state
                 let isCompleted = false;
                 let isActive = false;
+                let isLocked = true;
 
                 if (level === 'intro') {
                     isCompleted = loadedTypes.includes('intro');
-                    isActive = isCompleted && loadedTypes.length === 1;
+                    isActive = loadedTypes.length === 0 || (loadedTypes.length === 1 && loadedTypes[0] === 'intro');
+                    isLocked = false;
                 } else if (level.startsWith('level')) {
                     isCompleted = loadedTypes.includes(level);
-                    const idx = loadedTypes.indexOf(level);
-                    isActive = idx !== -1 && idx === loadedTypes.length - 1;
+                    // It's active if it's the next one to load or the current one
+                    const itemIndex = MASTERY_SEQUENCE.indexOf(level);
+                    isActive = (itemIndex === currentIndex + 1) || (itemIndex === currentIndex);
+                    isLocked = itemIndex > currentIndex + 1;
                 } else if (level === 'practice') {
                     isCompleted = loadedTypes.includes('practice_independent');
-                    isActive = !isCompleted && (loadedTypes.includes('examples') || loadedTypes.includes('practice_guided'));
+                    const practiceStartIdx = MASTERY_SEQUENCE.indexOf('examples');
+                    isActive = !isCompleted && currentIndex >= practiceStartIdx - 1;
+                    isLocked = currentIndex < practiceStartIdx - 1;
                 } else if (level === 'mastery') {
                     isCompleted = loadedTypes.includes('summary');
-                    isActive = !isCompleted && (loadedTypes.includes('checkpoints') || loadedTypes.includes('mini_project') || loadedTypes.includes('mistakes'));
+                    const masteryStartIdx = MASTERY_SEQUENCE.indexOf('checkpoints');
+                    isActive = !isCompleted && currentIndex >= masteryStartIdx - 1;
+                    isLocked = currentIndex < masteryStartIdx - 1;
                 }
 
-                item.classList.remove('active', 'locked', 'completed');
                 if (isCompleted) item.classList.add('completed');
-                if (isActive) item.classList.add('active');
+                else if (isActive) item.classList.add('active');
+                else if (isLocked) item.classList.add('locked');
                 
-                // Lock logic
-                const levelIdx = MASTERY_SEQUENCE.indexOf(loadedTypes[loadedTypes.length - 1]);
-                // This is a bit complex for a simple map, but roughly:
-                // if previous levels aren't done, it's locked.
+                // Set pointer cursor for active/completed
+                item.style.cursor = isLocked ? 'default' : 'pointer';
+                item.style.opacity = isLocked ? '0.4' : '1';
             });
         }
 
