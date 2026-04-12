@@ -119,6 +119,7 @@
     position: sticky;
     top: 80px;
     height: calc(100vh - 80px);
+    align-self: flex-start; /* Critical for sticky in flex */
 }
 
 .lesson-main {
@@ -126,6 +127,36 @@
     padding: 3rem;
     max-width: 900px;
     margin: 0 auto;
+}
+
+/* Contextual Navigation */
+.contextual-nav {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--glass-border);
+    text-align: right;
+}
+
+.contextual-nav p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.btn-link {
+    background: transparent;
+    border: none;
+    color: var(--accent);
+    font-weight: 700;
+    padding: 0;
+    margin-left: 0.5rem;
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 1rem;
+    transition: color 0.3s;
+}
+
+.btn-link:hover {
+    color: #fff;
 }
 
 .mastery-roadmap {

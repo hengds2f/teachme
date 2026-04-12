@@ -188,11 +188,32 @@ document.addEventListener('DOMContentLoaded', () => {
                     const welcome = document.querySelector('.welcome-card');
                     if (welcome) welcome.remove();
 
+                    // Find next roadmap level for contextual link
+                    const roadmapLevels = Array.from(roadmapItems).map(item => item.dataset.level);
+                    const currentRoadmapLevel = roadmapLevels.find(l => {
+                        if (l === 'practice') return ['examples', 'practice_guided', 'practice_independent'].includes(type);
+                        if (l === 'mastery') return ['checkpoints', 'mini_project', 'mistakes', 'summary'].includes(type);
+                        return l === type;
+                    }) || type;
+                    
+                    const nextRoadmapIndex = roadmapLevels.indexOf(currentRoadmapLevel) + 1;
+                    let nextNavHtml = "";
+                    if (nextRoadmapIndex < roadmapLevels.length) {
+                        const nextLevel = roadmapLevels[nextRoadmapIndex];
+                        const nextLabel = roadmapItems[nextRoadmapIndex].querySelector('.roadmap-label').innerText;
+                        nextNavHtml = `
+                            <div class="contextual-nav animate-in">
+                                <p>Progressed through this level? <button class="btn-link" onclick="document.getElementById('nav-${nextLevel}').click()">Continue to ${nextLabel} →</button></p>
+                            </div>
+                        `;
+                    }
+
                     const newBox = document.createElement('div');
                     newBox.className = `chunk-box chunk-${type} animate-in`;
                     newBox.innerHTML = `
                         <div class="chunk-label">${type.replace('_', ' ').toUpperCase()}</div>
                         <div class="chunk-content markdown-body">${data.content_html}</div>
+                        ${nextNavHtml}
                     `;
                     chunksArea.appendChild(newBox);
                     newBox.scrollIntoView({ behavior: 'smooth' });
