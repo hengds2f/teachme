@@ -104,9 +104,10 @@
 <style>
 /* Scoped styles for the new layout */
 .topic-layout {
-    display: flex;
-    min-height: calc(100vh - 80px); /* Adjust for navbar */
-    margin: -1.5rem -2rem; /* Negate base container padding */
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    min-height: calc(100vh - 80px);
+    background: var(--bg-color);
 }
 
 .lesson-sidebar {
@@ -116,29 +117,16 @@
     padding: 2rem;
     display: flex;
     flex-direction: column;
-    z-index: 90;
-}
-
-@media (min-width: 1025px) {
-    .lesson-sidebar {
-        position: fixed;
-        top: 80px;
-        height: calc(100vh - 80px);
-        overflow-y: auto;
-    }
-    .lesson-main {
-        margin-left: 320px;
-        flex: 1;
-        padding: 3rem;
-        max-width: 900px;
-    }
+    position: sticky;
+    top: 80px;
+    height: calc(100vh - 80px);
+    z-index: 10;
+    overflow-y: auto;
 }
 
 .lesson-main {
-    flex: 1;
     padding: 3rem;
-    max-width: 900px;
-    margin: 0 auto;
+    max-width: 1000px;
 }
 
 /* Contextual Navigation */
