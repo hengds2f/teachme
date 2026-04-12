@@ -117,19 +117,19 @@ def generate_topic_chunk(subject, topic_title, chunk_type, current_context=""):
     genai.configure(api_key=api_key)
 
     section_prompts = {
-        "intro": "Generate Sections 1-5: Title, Learning Goals, Intro, Prerequisites, and Big Picture.",
-        "level1": "Generate Level 1 (Absolute Beginner): Intuition and core concepts.",
-        "level2": "Generate Level 2 (Beginner-Intermediate): Building structural knowledge.",
-        "level3": "Generate Level 3 (Intermediate-Advanced): Rigorous theory.",
-        "level4": "Generate Level 4 (University level): Deep analytical frameworks.",
-        "level5": "Generate Level 5 (Mastery): Insight, edge cases, and research extension.",
-        "examples": "Generate Section 7: Complex Worked Examples with step-by-step logic.",
-        "practice_guided": "Generate Section 8: Guided Practice questions with hints in collapsible blocks.",
-        "practice_independent": "Generate Section 9: Independent Practice (Advanced application).",
-        "checkpoints": "Generate Section 10: Checkpoints (Active retrieval questions).",
-        "mini_project": "Generate Section 11: Real-world Capstone/Case Study.",
-        "mistakes": "Generate Section 13: Common Pitfalls & Debugging Tips.",
-        "summary": "Generate Sections 14-15: Summary and Personalized Next Steps."
+        "intro": "Generate a comprehensive 'Orientation & Big Picture' lesson. Cover: Subject Overview, Core Learnings, Immediate Mental Model/Analogies, Prerequisites, and why this topic matters. This should be a complete self-contained introductory layer.",
+        "level1": "Generate a comprehensive 'Level 1: Absolute Beginner' lesson. Focus on building the foundational mental models from zero. Explain core abstractions with extreme clarity.",
+        "level2": "Generate a comprehensive 'Level 2: Expanding Horizons' lesson. Build upon foundational concepts to show broader structural patterns and basic applications.",
+        "level3": "Generate a comprehensive 'Level 3: Structural Analysis' lesson. Introduce rigorous frameworks, deeper theory, and how components interact in more complex systems.",
+        "level4": "Generate a comprehensive 'Level 4: Advanced Theory' lesson. Focus on high-level analytical logic, university-level conceptual depth, and complex interactions.",
+        "level5": "Generate a comprehensive 'Level 5: Mastery & Insight' lesson. Cover edge cases, master-level intuition, industry/research extensions, and deep synthesis.",
+        "examples": "Generate Section 7: Complex Worked Examples. Provide 3 varied, high-quality, fully-scoped solved problems with step-by-step instructional logic.",
+        "practice_guided": "Generate Section 8: Guided Practice. Provide interactive-style problems where the user can find hints and guided solutions (using details/summary blocks).",
+        "practice_independent": "Generate Section 9: Independent Practice. Advanced, standalone application tasks to test true mastery.",
+        "checkpoints": "Generate Section 10: Checkpoints. A retrieval-based assessment for the entire topic, covering all levels of understanding.",
+        "mini_project": "Generate Section 11: Real-world Case Study/Capstone Project. A concrete application task with requirements and success criteria.",
+        "mistakes": "Generate Section 13: Expert Insight & Pitfalls. Debugging tips, common misconceptions, and 'what the masters know'.",
+        "summary": "Generate Sections 14-15: Final Synthesis & Roadmap. Recap the key takeaways and provide specific, personalized next steps."
     }
 
     instruction = section_prompts.get(chunk_type, "Provide the next pedagogical section.")

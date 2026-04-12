@@ -118,38 +118,30 @@ document.addEventListener('DOMContentLoaded', () => {
             updateRoadmap(loadedChunks);
             renderMath();
             
-            // Roadmap Click Handling
+            // Roadmap Click Handling (Modular Access)
             roadmapItems.forEach(item => {
                 item.addEventListener('click', () => {
                     const level = item.dataset.level;
-                    if (item.classList.contains('locked')) {
-                        console.log("Section is locked.");
-                        return;
-                    }
-
+                    
                     // If already loaded, scroll to it
                     const targetChunk = chunksArea.querySelector(`.chunk-${level}`);
                     if (targetChunk) {
                         targetChunk.scrollIntoView({ behavior: 'smooth' });
+                        updateRoadmapState(level);
                         return;
                     }
 
-                    // Special case for 'practice' and 'mastery' groups
-                    if (level === 'practice' || level === 'mastery') {
-                        const firstInGroup = level === 'practice' ? 'examples' : 'checkpoints';
-                        const chunk = chunksArea.querySelector(`.chunk-${firstInGroup}`);
-                        if (chunk) {
-                            chunk.scrollIntoView({ behavior: 'smooth' });
-                        } else {
-                            // If not loaded but next in line, trigger continue
-                            nextBtn.click();
-                        }
-                        return;
-                    }
+                    // For grouped levels (Practice/Mastery), handle special entry points
+                    let typeToGen = level;
+                    if (level === 'practice') typeToGen = 'examples';
+                    if (level === 'mastery') typeToGen = 'checkpoints';
 
-                    // If it's the next logical item but not loaded, click Continue
-                    if (item.classList.contains('active') && !targetChunk) {
-                        nextBtn.click();
+                    const specificChunk = chunksArea.querySelector(`.chunk-${typeToGen}`);
+                    if (specificChunk) {
+                        specificChunk.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        // Generate the standalone comprehensive section
+                        generateChunk(typeToGen);
                     }
                 });
             });
@@ -158,8 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const startBtn = document.querySelector('.start-lesson-btn');
             if (startBtn) {
                 startBtn.addEventListener('click', () => {
-                    const type = startBtn.dataset.type;
-                    generateChunk(type);
+                    generateChunk('intro');
                 });
             }
 
@@ -194,7 +185,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const data = await response.json();
                 if (data.content_html) {
-                    // Remove welcome card if it exists
                     const welcome = document.querySelector('.welcome-card');
                     if (welcome) welcome.remove();
 
@@ -207,28 +197,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     chunksArea.appendChild(newBox);
                     newBox.scrollIntoView({ behavior: 'smooth' });
                     
-                    // Update state
                     const loaded = Array.from(chunksArea.querySelectorAll('.chunk-box')).map(c => {
                         return Array.from(c.classList).find(cls => cls.startsWith('chunk-')).replace('chunk-', '');
                     });
                     updateRoadmap(loaded);
                     renderMath();
-                    
-                    // Show mastery footer if it was hidden
-                    const footer = document.getElementById('mastery-footer');
-                    if (footer && footer.style.display === 'none') {
-                        // We need to re-render the footer if it was empty
-                        window.location.reload(); 
-                    }
-                    
-                    // If we just generated summary, rename button
-                    if (type === 'summary') {
-                        nextBtn.innerText = "Finish Topic";
-                    }
                 }
             } catch (err) {
                 console.error(err);
-                alert("Generation error.");
             } finally {
                 chunkLoader.classList.add('loader-hidden');
                 if (nextBtn) nextBtn.disabled = false;
@@ -236,47 +212,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function updateRoadmap(loadedTypes) {
-            const lastLoaded = loadedTypes[loadedTypes.length - 1];
-            const currentIndex = MASTERY_SEQUENCE.indexOf(lastLoaded);
-            
             roadmapItems.forEach(item => {
                 const level = item.dataset.level;
-                item.classList.remove('active', 'locked', 'completed');
+                item.classList.remove('active', 'completed', 'locked');
 
-                // Determine logical state
-                let isCompleted = false;
-                let isActive = false;
-                let isLocked = true;
+                let isLoaded = false;
+                if (level === 'practice') isLoaded = loadedTypes.includes('examples') || loadedTypes.includes('practice_guided');
+                else if (level === 'mastery') isLoaded = loadedTypes.includes('checkpoints');
+                else isLoaded = loadedTypes.includes(level);
 
-                if (level === 'intro') {
-                    isCompleted = loadedTypes.includes('intro');
-                    isActive = loadedTypes.length === 0 || (loadedTypes.length === 1 && loadedTypes[0] === 'intro');
-                    isLocked = false;
-                } else if (level.startsWith('level')) {
-                    isCompleted = loadedTypes.includes(level);
-                    // It's active if it's the next one to load or the current one
-                    const itemIndex = MASTERY_SEQUENCE.indexOf(level);
-                    isActive = (itemIndex === currentIndex + 1) || (itemIndex === currentIndex);
-                    isLocked = itemIndex > currentIndex + 1;
-                } else if (level === 'practice') {
-                    isCompleted = loadedTypes.includes('practice_independent');
-                    const practiceStartIdx = MASTERY_SEQUENCE.indexOf('examples');
-                    isActive = !isCompleted && currentIndex >= practiceStartIdx - 1;
-                    isLocked = currentIndex < practiceStartIdx - 1;
-                } else if (level === 'mastery') {
-                    isCompleted = loadedTypes.includes('summary');
-                    const masteryStartIdx = MASTERY_SEQUENCE.indexOf('checkpoints');
-                    isActive = !isCompleted && currentIndex >= masteryStartIdx - 1;
-                    isLocked = currentIndex < masteryStartIdx - 1;
-                }
-
-                if (isCompleted) item.classList.add('completed');
-                else if (isActive) item.classList.add('active');
-                else if (isLocked) item.classList.add('locked');
+                if (isLoaded) item.classList.add('completed');
                 
-                // Set pointer cursor for active/completed
-                item.style.cursor = isLocked ? 'default' : 'pointer';
-                item.style.opacity = isLocked ? '0.4' : '1';
+                // All items are pointers in modular mode
+                item.style.cursor = 'pointer';
+                item.style.opacity = '1';
+            });
+        }
+
+        function updateRoadmapState(activeLevel) {
+            roadmapItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.level === activeLevel) item.classList.add('active');
             });
         }
 
