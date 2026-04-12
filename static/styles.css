@@ -213,3 +213,8 @@ button {
 .quiz-results-summary { text-align: center; padding: 2rem; background: var(--glass-bg); border-radius: 12px; border: 2px solid var(--primary); margin-top: 2rem; }
 .quiz-score { font-size: 3rem; font-weight: 800; color: var(--accent); display: block; margin-bottom: 0.5rem; }
 .quiz-submit-btn { margin-top: 2rem; width: 100%; padding: 1.2rem; font-size: 1.1rem; }
+.container.full-width {
+    max-width: none;
+    padding: 0;
+    width: 100%;
+}

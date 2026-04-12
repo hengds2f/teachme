@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% block container_class %}full-width{% endblock %}
+
 {% block content %}
 <div class="topic-layout">
     <!-- Sidebar Roadmap -->
@@ -104,14 +106,13 @@
 <style>
 /* Scoped styles for the new layout */
 .topic-layout {
-    display: grid;
-    grid-template-columns: 320px 1fr;
+    display: flex;
     min-height: calc(100vh - 80px);
-    background: var(--bg-color);
 }
 
 .lesson-sidebar {
     width: 320px;
+    flex-shrink: 0;
     background: var(--glass-bg);
     border-right: 1px solid var(--glass-border);
     padding: 2rem;
@@ -120,13 +121,14 @@
     position: sticky;
     top: 80px;
     height: calc(100vh - 80px);
-    z-index: 10;
+    z-index: 100;
     overflow-y: auto;
 }
 
 .lesson-main {
+    flex: 1;
     padding: 3rem;
-    max-width: 1000px;
+    max-width: 1100px;
 }
 
 /* Contextual Navigation */
