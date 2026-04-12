@@ -269,13 +269,42 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Dashboard Stats (Preserved)
-    if (document.querySelector('.curriculum-grid-container')) {
+    const curriculumGrid = document.querySelector('.curriculum-grid-container');
+    if (curriculumGrid) {
         const cards = document.querySelectorAll('.topic-card');
         const completed = document.querySelectorAll('.topic-card.completed').length;
         const total = cards.length;
         const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
         if (document.getElementById('progress-fill')) document.getElementById('progress-fill').style.width = percent + '%';
         if (document.getElementById('progress-percent')) document.getElementById('progress-percent').innerText = percent + '%';
+
+        // Delete Curriculum Handling
+        document.querySelectorAll('.delete-curriculum-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const currId = btn.dataset.id;
+                const subject = btn.dataset.subject;
+                
+                if (confirm(`Are you sure you want to delete the entire curriculum for "${subject}"? This cannot be undone.`)) {
+                    try {
+                        const response = await fetch(`/api/curriculum/delete/${currId}`, {
+                            method: 'POST'
+                        });
+                        const data = await response.json();
+                        if (data.status === 'success') {
+                            window.location.href = '/?new=1'; // Go to setup or refresh
+                        } else {
+                            alert("Error deleting: " + data.message);
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert("Failed to delete curriculum.");
+                    }
+                }
+            });
+        });
     }
 
     renderMath();
