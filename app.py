@@ -375,6 +375,7 @@ def topic_view(topic_id_str):
         progress.status = "In Progress"
         db.session.commit()
 
+    # Pre-generate the introduction if no chunks exist
     chunks = json.loads(progress.content_chunks_json) if progress.content_chunks_json else []
     
     return render_template('topic_guide.html', 
@@ -405,8 +406,9 @@ def generate_chunk():
     
     # Handle JSON chunks (like quiz) vs Markdown chunks
     if chunk_type == "quiz":
-        html_content = md_content # Pass raw JSON string
+        html_content = md_content # Pass raw JSON string (handled by frontend)
     else:
+        # Custom cleaning for Math/LaTeX if needed, but render_md should handle it if passed correctly
         html_content = render_md(md_content)
     
     # Save the chunk
