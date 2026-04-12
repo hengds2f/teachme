@@ -79,7 +79,6 @@
                     <p id="footer-instruction">Ready to advance to the next level?</p>
                     <div class="action-buttons">
                         <button class="dynamic-btn" id="nextChunkBtn">Continue Learning</button>
-                        <button class="btn-secondary" id="stuckBtn">🤔 Explain Differently</button>
                     </div>
                 </div>
                 {% endif %}
@@ -101,19 +100,6 @@
     </main>
 </div>
 
-<!-- Re-explain Modal -->
-<div id="reexplainModal" class="modal-hidden">
-    <div class="modal-content glass-panel">
-        <h3>Cognitive Support</h3>
-        <p>Tell the tutor what part is confusing, and it will provide a new perspective or analogy.</p>
-        <textarea id="feedbackText" rows="3" placeholder="e.g., I don't quite get how the derivative relates to the slope here..."></textarea>
-        <div class="modal-actions">
-            <button id="cancelReexplain" class="btn-secondary">Dismiss</button>
-            <button id="submitReexplain" class="cta-button">Re-Explain</button>
-        </div>
-        <div id="modal-spinner" class="loader-hidden"><div class="spinner"></div></div>
-    </div>
-</div>
 
 <style>
 /* Scoped styles for the new layout */

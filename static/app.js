@@ -242,33 +242,6 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = '/';
         }
 
-        // Stuck/Re-explain logic
-        const stuckBtn = document.getElementById('stuckBtn');
-        const modal = document.getElementById('reexplainModal');
-        if (stuckBtn && modal) {
-            stuckBtn.addEventListener('click', () => modal.style.display = 'flex');
-            document.getElementById('cancelReexplain').addEventListener('click', () => modal.style.display = 'none');
-            document.getElementById('submitReexplain').addEventListener('click', async () => {
-                const feedback = document.getElementById('feedbackText').value;
-                if (!feedback) return;
-                
-                const response = await fetch('/api/chunk/reexplain', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ concept: "Last chunk", feedback: feedback })
-                });
-                const data = await response.json();
-                if (data.content_html) {
-                    const newBox = document.createElement('div');
-                    newBox.className = "chunk-box chunk-reexplain animate-in";
-                    newBox.innerHTML = `<div class="chunk-label">COGNITIVE SUPPORT</div><div class="chunk-content">${data.content_html}</div>`;
-                    chunksArea.appendChild(newBox);
-                    newBox.scrollIntoView({ behavior: 'smooth' });
-                    modal.style.display = 'none';
-                    renderMath();
-                }
-            });
-        }
     }
 
     // Dashboard Stats (Preserved)
